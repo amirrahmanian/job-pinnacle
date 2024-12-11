@@ -49,7 +49,7 @@ export class JobEntity extends BaseEntity {
   @Column()
   education: string;
 
-  @Column({ type: 'array', nullable: true })
+  @Column({ nullable: true, array: true })
   skills?: string[];
 
   @ManyToOne(() => CompanyEntity, (company) => company.jobs)
