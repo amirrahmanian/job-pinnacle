@@ -8,7 +8,7 @@ import {
 import { BaseEntity } from './base.entity';
 import { JobEntity } from './job.entity';
 
-@Entity()
+@Entity('user')
 export class UserEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -29,10 +29,10 @@ export class UserEntity extends BaseEntity {
   resume?: string;
 
   @ManyToMany(() => JobEntity, (job) => job.appliedUsers)
-  @JoinTable({ name: 'appliedJobs' })
+  @JoinTable({ name: 'applied-jobs' })
   appliedJobs: JobEntity[];
 
   @ManyToMany(() => JobEntity)
-  @JoinTable()
+  @JoinTable({ name: 'saved-jobs' })
   savedJobs: JobEntity[];
 }

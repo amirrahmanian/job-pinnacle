@@ -11,7 +11,7 @@ import { BaseEntity } from './base.entity';
 import { UserEntity } from './user.entity';
 import { CompanyEntity } from './company.entity';
 
-@Entity()
+@Entity('job')
 export class JobEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -49,7 +49,7 @@ export class JobEntity extends BaseEntity {
   @Column()
   education: string;
 
-  @Column({ nullable: true, array: true })
+  @Column('varchar', { array: true })
   skills?: string[];
 
   @ManyToOne(() => CompanyEntity, (company) => company.jobs)

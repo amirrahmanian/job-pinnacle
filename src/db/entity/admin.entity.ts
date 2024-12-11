@@ -2,7 +2,7 @@ import { Permition, Role } from 'src/common/enum/common.enum';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { BaseEntity } from './base.entity';
 
-@Entity()
+@Entity('admin')
 export class AdminEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
