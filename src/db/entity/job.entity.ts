@@ -1,4 +1,4 @@
-import { ColaborationType } from 'src/common/enum/common.enum';
+import { ColaborationTypeEnum } from 'src/common/enum/colaboration-type.enum';
 import {
   Column,
   Entity,
@@ -28,8 +28,8 @@ export class JobEntity extends BaseEntity {
   @Column()
   location: string;
 
-  @Column({ enum: ColaborationType })
-  collaborationType: ColaborationType;
+  @Column({ enum: ColaborationTypeEnum })
+  collaborationType: ColaborationTypeEnum;
 
   @Column()
   salary: string;
@@ -49,7 +49,7 @@ export class JobEntity extends BaseEntity {
   @Column()
   education: string;
 
-  @Column('varchar', { array: true })
+  @Column('varchar', { array: true, nullable: true })
   skills?: string[];
 
   @ManyToOne(() => CompanyEntity, (company) => company.jobs)

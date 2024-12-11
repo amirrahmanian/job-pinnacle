@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AdminsModule } from './admin/admins.module';
 import { DbModule } from './db/db.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -39,7 +38,6 @@ import validationConfig from './config/validation.config';
         };
       },
     }),
-    AdminsModule,
     DbModule,
   ],
 })
