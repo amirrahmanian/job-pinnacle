@@ -60,7 +60,7 @@ export class AdminService {
     return raw;
   }
 
-  async deleteAdmin(adminId) {
+  async deleteAdmin(adminId: number) {
     const admin = await this.adminRepository.findOne({
       where: { id: adminId },
       select: { id: true },
