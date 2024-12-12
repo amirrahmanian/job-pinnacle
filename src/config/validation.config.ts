@@ -7,4 +7,9 @@ export default Joi.object({
   POSTGRES_DBNAME: Joi.string().required(),
   POSTGRES_USERNAME: Joi.string().required(),
   POSTGRES_PASSWORD: Joi.string().required(),
+  JWT_EXPIRES_IN: Joi.string().required(),
+  JWT_SECRET: Joi.string().required(),
+  SESSION_SECRET: Joi.string().required(),
+  SESSION_SALT: Joi.string().required(),
+  SESSION_EXPIRES_IN: Joi.string().required(),
 });

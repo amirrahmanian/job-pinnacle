@@ -9,4 +9,17 @@ export default () => ({
     username: process.env.POSTGRES_USERNAME,
     password: process.env.POSTGRES_PASSWORD,
   },
+
+  // jwt
+  jwt: {
+    secret: process.env.JWT_SECRET,
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  },
+
+  // session
+  session: {
+    secret: process.env.SESSION_SECRET,
+    salt: process.env.SESSION_SALT,
+    expiresIn: process.env.SESSION_EXPIRES_IN,
+  },
 });
