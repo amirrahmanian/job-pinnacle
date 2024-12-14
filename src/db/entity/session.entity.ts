@@ -19,9 +19,6 @@ export class SessionEntity extends BaseEntity {
   @Column()
   userId: number;
 
-  @Column({ type: 'varchar', length: 255 })
-  clientId: string; /** TODO: think about indexing and limitations */
-
   @Column({ type: 'enum', enum: RoleEnum })
   role: RoleEnum;
 

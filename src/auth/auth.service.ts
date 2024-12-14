@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserRepository } from 'src/db/repository/user.repository';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -10,6 +15,8 @@ import { JwtAccessTokenPayload } from './type/jwt-access-token-payload.type';
 import { ISessionRefreshTokenPayload } from 'src/session/interface/session-refresh-token-payload.interface';
 import { parseDevice } from 'src/util/parese-device.util';
 import { SessionService } from 'src/session/session.service';
+import { LoginBodyDto } from './dto/login-body.dto';
+import { RefreshQueryBodyDto } from './dto/refresh-body.dto';
 
 @Injectable()
 export class AuthService {
@@ -19,24 +26,23 @@ export class AuthService {
     private sessionService: SessionService,
   ) {}
 
-  async signUpUser(
-    signUpUserBodyDto: SignUpUserBodyDto,
-    clientId: string,
+  async register(
+    body: SignUpUserBodyDto,
     ip: string,
     headers: IncomingHttpHeaders,
   ) {
-    const user = await this.userRepository.findOne({
-      where: { email: signUpUserBodyDto.email },
+    const user: Pick<UserEntity, 'id'> = await this.userRepository.findOne({
+      where: { email: body.email },
       select: { id: true },
     });
 
     if (user) throw new BadRequestException('duplicate.email');
 
     const salt = await bcrypt.genSalt();
-    const hashedPassword = await bcrypt.hash(signUpUserBodyDto.password, salt);
+    const hashedPassword = await bcrypt.hash(body.password, salt);
 
     const insertUserResult = await this.userRepository.insert({
-      ...signUpUserBodyDto,
+      ...body,
       password: hashedPassword,
       role: RoleEnum.User,
     });
@@ -48,7 +54,6 @@ export class AuthService {
         id: userId,
         role: RoleEnum.User,
       },
-      clientId,
       ip,
       headers,
     );
@@ -56,14 +61,49 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
+  async login(body: LoginBodyDto, ip: string, headers: IncomingHttpHeaders) {
+    const user = await this.userRepository.findOne({
+      where: { email: body.email },
+      select: { id: true, role: true, password: true },
+    });
+
+    if (!user) throw new NotFoundException('user.not_found');
+
+    const isMatched = await bcrypt.compare(body.password, user.password);
+
+    if (!isMatched) throw new BadRequestException('invalid_credentials');
+
+    const { accessToken, refreshToken } = await this.generateTokens(
+      { id: user.id, role: user.role },
+      ip,
+      headers,
+    );
+
+    return { accessToken, refreshToken };
+  }
+
+  async refresh(body: RefreshQueryBodyDto) {
+    const session = await this.sessionService
+      .verify(body.refreshToken)
+      .catch(() => {
+        throw new UnauthorizedException();
+      });
+
+    const accessToken = await this.generateAccessToken({
+      id: session.userId,
+      role: session.role,
+    });
+
+    return { accessToken };
+  }
+
   async generateTokens(
     user: Pick<UserEntity, 'id' | 'role'>,
-    clientId: string,
     ip: string,
     headers: IncomingHttpHeaders,
   ) {
     const [refreshToken, accessToken] = await Promise.all([
-      this.generateRefreshToken(user, clientId, ip, headers),
+      this.generateRefreshToken(user, ip, headers),
       this.generateAccessToken(user),
     ]);
 
@@ -72,7 +112,6 @@ export class AuthService {
 
   async generateRefreshToken(
     user: Pick<UserEntity, 'id' | 'role'>,
-    clientId: string,
     ip: string,
     headers: IncomingHttpHeaders,
   ) {
@@ -85,7 +124,6 @@ export class AuthService {
       ip,
       userAgent,
       device,
-      clientId,
     };
 
     const refreshToken = await this.sessionService.sign(payload);

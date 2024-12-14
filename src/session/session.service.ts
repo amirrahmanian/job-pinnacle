@@ -6,7 +6,8 @@ import { ConfigService } from '@nestjs/config';
 import { ISessionOptions } from './interface/session-options.interface';
 import { parseSeconds } from 'src/util/parse-secounds.util';
 import { randomUUID } from 'crypto';
-import { encrypt } from 'src/util/aes-methods.util';
+import { decrypt, encrypt } from 'src/util/aes-methods.util';
+import { SessionEntity } from 'src/db/entity/session.entity';
 
 @Injectable()
 export class SessionService {
@@ -32,7 +33,6 @@ export class SessionService {
 
     await this.sessionRepository.insert({
       userId: payload.userId,
-      clientId: payload.clientId,
       role: payload.role,
       key,
       ip: payload.ip,
@@ -46,5 +46,33 @@ export class SessionService {
     ).toString('base64');
 
     return token;
+  }
+
+  async verify(token: string) {
+    const key = (
+      await decrypt(
+        Buffer.from(token, 'base64'),
+        this.options.secret,
+        this.options.salt,
+      )
+    ).toString();
+
+    const session: Pick<
+      SessionEntity,
+      'id' | 'userId' | 'role' | 'expireDate'
+    > = await this.sessionRepository.findOne({
+      where: { key },
+      select: { id: true, userId: true, role: true, expireDate: true },
+    });
+
+    if (!session) {
+      throw new Error('session.not_found');
+    }
+
+    if (session.expireDate < new Date()) {
+      throw new Error('session.expired');
+    }
+
+    return session;
   }
 }

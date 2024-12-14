@@ -6,6 +6,8 @@ import { ConfigService } from '@nestjs/config';
 import { AppEnvConfigType } from 'src/common/type/app-env.type';
 import { DbModule } from 'src/db/db.module';
 import { SessionModule } from 'src/session/session.module';
+import { APP_GUARD } from '@nestjs/core';
+import { JwtAccessTokenGuard } from './guard/jwt-access-token.guard';
 
 @Module({
   imports: [
@@ -23,7 +25,10 @@ import { SessionModule } from 'src/session/session.module';
       },
     }),
   ],
-  providers: [AuthService],
+  providers: [
+    AuthService,
+    { provide: APP_GUARD, useClass: JwtAccessTokenGuard },
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}
