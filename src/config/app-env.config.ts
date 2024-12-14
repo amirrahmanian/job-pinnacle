@@ -22,4 +22,11 @@ export default () => ({
     salt: process.env.SESSION_SALT,
     expiresIn: process.env.SESSION_EXPIRES_IN,
   },
+
+  // redis
+  redis: {
+    host: process.env.REDIS_HOST,
+    port: parseInt(process.env.REDIS_PORT),
+    password: process.env.REDIS_PASSWORD,
+  },
 });

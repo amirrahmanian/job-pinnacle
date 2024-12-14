@@ -8,11 +8,13 @@ import { DbModule } from 'src/db/db.module';
 import { SessionModule } from 'src/session/session.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAccessTokenGuard } from './guard/jwt-access-token.guard';
+import { OtpModule } from 'src/otp/otp.module';
 
 @Module({
   imports: [
     DbModule,
     SessionModule,
+    OtpModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService<AppEnvConfigType>) => {

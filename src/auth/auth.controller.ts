@@ -1,4 +1,11 @@
-import { Body, Controller, Headers, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Headers,
+  HttpCode,
+  HttpStatus,
+  Post,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpUserBodyDto } from './dto/sign-up-user-body.dto';
 import { IncomingHttpHeaders } from 'http';
@@ -6,6 +13,10 @@ import { ClientIp } from 'src/common/decorator/client-ip.decorator';
 import { LoginBodyDto } from './dto/login-body.dto';
 import { RefreshQueryBodyDto } from './dto/refresh-body.dto';
 import { Public } from './decorator/public.decorator';
+import { LogoutBodyDto } from './dto/logout-body.dto';
+import { User } from 'src/auth/decorator/user.decorator';
+import { UserPayload } from './type/user-payload.type';
+import { ForgetPasswordSendOtpBodyDto } from './dto/forget-password-send-otp-body.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -36,4 +47,35 @@ export class AuthController {
   refresh(@Body() refreshToken: RefreshQueryBodyDto) {
     return this.authService.refresh(refreshToken);
   }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  logout(
+    @Body() logoutBodyDto: LogoutBodyDto,
+    @User() userPayload: UserPayload,
+  ) {
+    return this.authService.logout(logoutBodyDto, userPayload);
+  }
+
+  @Post('forget-password')
+  @Public()
+  forgetPasswordSendOtp(
+    @Body() forgetPasswordSendOtpBodyDto: ForgetPasswordSendOtpBodyDto,
+  ) {
+    return this.authService.forgetPasswordSendOtp(forgetPasswordSendOtpBodyDto);
+  }
+
+  // @Post()
+  // @Public()
+  // forgetPasswordVerifyOtp(
+  //   @Body() forgetPasswordBodyDto: ForgetPasswordBodyDto,
+  // ) {
+  //   return this.authService.forgetPasswordVerifyOtp(forgetPasswordBodyDto);
+  // }
+
+  // @Post()
+  // @Public()
+  // forgetPassword(@Body() forgetPasswordBodyDto: ForgetPasswordBodyDto) {
+  //   return this.authService.forgetPassword(forgetPasswordBodyDto);
+  // }
 }

@@ -6,6 +6,9 @@ import appEnvConfig from './config/app-env.config';
 import { AppEnvConfigType } from './common/type/app-env.type';
 import { AuthModule } from './auth/auth.module';
 import { SessionModule } from './session/session.module';
+import { OtpModule } from './otp/otp.module';
+import { RedisModule } from './redis/redis.module';
+import { NotificationModule } from './notification/notification.module';
 import validationConfig from './config/validation.config';
 
 @Module({
@@ -43,6 +46,9 @@ import validationConfig from './config/validation.config';
     DbModule,
     AuthModule,
     SessionModule,
+    OtpModule,
+    RedisModule,
+    NotificationModule,
   ],
 })
 export class AppModule {}

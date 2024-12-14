@@ -17,6 +17,12 @@ import { parseDevice } from 'src/util/parese-device.util';
 import { SessionService } from 'src/session/session.service';
 import { LoginBodyDto } from './dto/login-body.dto';
 import { RefreshQueryBodyDto } from './dto/refresh-body.dto';
+import { LogoutBodyDto } from './dto/logout-body.dto';
+import { UserPayload } from './type/user-payload.type';
+import { ForgetPasswordSendOtpBodyDto } from './dto/forget-password-send-otp-body.dto';
+import { OtpService } from 'src/otp/otp.service';
+import { OtpOperationTypeEnum } from '../otp/enum/otp-operation-type.enum';
+import { OtpTypeEnum } from 'src/otp/enum/otp-type.enum';
 
 @Injectable()
 export class AuthService {
@@ -24,6 +30,7 @@ export class AuthService {
     private userRepository: UserRepository,
     private jwtService: JwtService,
     private sessionService: SessionService,
+    private otpService: OtpService,
   ) {}
 
   async register(
@@ -95,6 +102,37 @@ export class AuthService {
     });
 
     return { accessToken };
+  }
+
+  async logout(body: LogoutBodyDto, userPayload: UserPayload) {
+    const isDeleted = await this.sessionService.revoke(
+      body.refreshToken,
+      userPayload.userId,
+    );
+
+    if (!isDeleted) {
+      throw new NotFoundException('not_found.session');
+    }
+  }
+
+  async forgetPasswordSendOtp(body: ForgetPasswordSendOtpBodyDto) {
+    const user: Pick<UserEntity, 'id' | 'email'> =
+      await this.userRepository.findOne({
+        where: { email: body.email },
+        select: { id: true, email: true },
+      });
+
+    if (!user) throw new NotFoundException('not_found.user');
+
+    // create otp
+    const otp = await this.otpService.createOtp({
+      id: user.email,
+      operation: OtpOperationTypeEnum.FORGET_PASSWORD,
+      type: OtpTypeEnum.EMAIL,
+    });
+
+    // send otp
+    // notification service
   }
 
   async generateTokens(

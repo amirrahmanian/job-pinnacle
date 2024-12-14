@@ -12,4 +12,7 @@ export default Joi.object({
   SESSION_SECRET: Joi.string().required(),
   SESSION_SALT: Joi.string().required(),
   SESSION_EXPIRES_IN: Joi.string().required(),
+  REDIS_HOST: Joi.string().required(),
+  REDIS_PORT: Joi.number().port().required(),
+  REDIS_PASSWORD: Joi.string().required(),
 });

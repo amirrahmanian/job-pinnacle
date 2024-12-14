@@ -8,6 +8,7 @@ import { parseSeconds } from 'src/util/parse-secounds.util';
 import { randomUUID } from 'crypto';
 import { decrypt, encrypt } from 'src/util/aes-methods.util';
 import { SessionEntity } from 'src/db/entity/session.entity';
+import { IsNull, MoreThan } from 'typeorm';
 
 @Injectable()
 export class SessionService {
@@ -74,5 +75,26 @@ export class SessionService {
     }
 
     return session;
+  }
+
+  async revoke(refreshToken: string, userId: number) {
+    const key = (
+      await decrypt(
+        Buffer.from(refreshToken, 'base64'),
+        this.options.secret,
+        this.options.salt,
+      )
+    ).toString();
+
+    const result = await this.sessionRepository.softDelete({
+      key,
+      userId,
+      expireDate: MoreThan(new Date()),
+      deletedAt: IsNull(),
+    });
+
+    const deleted = !!result;
+
+    return deleted;
   }
 }
