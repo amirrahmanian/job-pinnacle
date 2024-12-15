@@ -9,6 +9,7 @@ import { SessionModule } from 'src/session/session.module';
 import { APP_GUARD } from '@nestjs/core';
 import { JwtAccessTokenGuard } from './guard/jwt-access-token.guard';
 import { OtpModule } from 'src/otp/otp.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -23,6 +24,29 @@ import { OtpModule } from 'src/otp/otp.module';
         return {
           secret: jwtEnvConfig.secret,
           signOptions: { expiresIn: jwtEnvConfig.expiresIn },
+        };
+      },
+    }),
+    MailerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<AppEnvConfigType>) => {
+        const mailerEnvConfig = configService.get('mail', { infer: true });
+
+        return {
+          transport: {
+            host: mailerEnvConfig.host,
+            port: mailerEnvConfig.port,
+            secure: true,
+            auth: {
+              user: mailerEnvConfig.user,
+              pass: mailerEnvConfig.password,
+            },
+          },
+          defaults: {
+            from: `"Job pinnacle" <${mailerEnvConfig.user}>`,
+          },
+          debug: true,
+          logger: true,
         };
       },
     }),

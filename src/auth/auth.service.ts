@@ -23,15 +23,24 @@ import { ForgetPasswordSendOtpBodyDto } from './dto/forget-password-send-otp-bod
 import { OtpService } from 'src/otp/otp.service';
 import { OtpOperationTypeEnum } from '../otp/enum/otp-operation-type.enum';
 import { OtpTypeEnum } from 'src/otp/enum/otp-type.enum';
+import { MailerService } from '@nestjs-modules/mailer';
+import { AppEnvConfigType } from 'src/common/type/app-env.type';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class AuthService {
+  private nodeEnv: string;
+
   constructor(
     private userRepository: UserRepository,
     private jwtService: JwtService,
     private sessionService: SessionService,
     private otpService: OtpService,
-  ) {}
+    private mailerService: MailerService,
+    configService: ConfigService<AppEnvConfigType>,
+  ) {
+    this.nodeEnv = configService.get('nodeEnv', { infer: true });
+  }
 
   async register(
     body: SignUpUserBodyDto,
@@ -131,8 +140,16 @@ export class AuthService {
       type: OtpTypeEnum.EMAIL,
     });
 
-    // send otp
-    // notification service
+    // send email
+    if (this.nodeEnv === 'development') {
+      console.log(`we have sent the code(${otp}) to your email(${user.email})`);
+    } else {
+      await this.mailerService.sendMail({
+        to: user.email,
+        subject: 'Change password',
+        text: `Forgot your password? If you didn't forget your password, please ignore this email. otherwise copy the code : ${otp}`,
+      });
+    }
   }
 
   async generateTokens(
