@@ -9,7 +9,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpUserBodyDto } from './dto/sign-up-user-body.dto';
 import { UserEntity } from 'src/db/entity/user.entity';
-import { RoleEnum } from 'src/common/enum/role.enum';
+import { UserRoleEnum } from 'src/common/enum/user-role.enum';
 import { IncomingHttpHeaders } from 'http';
 import { JwtAccessTokenPayload } from './type/jwt-access-token-payload.type';
 import { ISessionRefreshTokenPayload } from 'src/session/interface/session-refresh-token-payload.interface';
@@ -62,7 +62,7 @@ export class AuthService {
     const insertUserResult = await this.userRepository.insert({
       ...body,
       password: hashedPassword,
-      role: RoleEnum.User,
+      role: UserRoleEnum.USER,
     });
 
     const userId: UserEntity['id'] = insertUserResult.generatedMaps[0].id;
@@ -70,7 +70,7 @@ export class AuthService {
     const { accessToken, refreshToken } = await this.generateTokens(
       {
         id: userId,
-        role: RoleEnum.User,
+        role: UserRoleEnum.USER,
       },
       ip,
       headers,

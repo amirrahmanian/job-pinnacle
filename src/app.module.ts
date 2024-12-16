@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { SessionModule } from './session/session.module';
 import { OtpModule } from './otp/otp.module';
 import { RedisModule } from './redis/redis.module';
+import { JobModule } from './job/job.module';
 import validationConfig from './config/validation.config';
 
 @Module({
@@ -47,6 +48,7 @@ import validationConfig from './config/validation.config';
     SessionModule,
     OtpModule,
     RedisModule,
+    JobModule,
   ],
 })
 export class AppModule {}

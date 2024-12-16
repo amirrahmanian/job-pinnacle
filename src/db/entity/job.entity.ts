@@ -1,4 +1,4 @@
-import { ColaborationTypeEnum } from 'src/common/enum/colaboration-type.enum';
+import { JobColaborationTypeEnum } from 'src/common/enum/job-colaboration-type.enum';
 import {
   Column,
   Entity,
@@ -10,6 +10,11 @@ import {
 import { BaseEntity } from './base.entity';
 import { UserEntity } from './user.entity';
 import { CompanyEntity } from './company.entity';
+import { IJobExprience } from 'src/common/interface/exprience.interface';
+import { JobGenderEnum } from 'src/common/enum/job-gender.enum';
+import { JobActivityAreaEnum } from 'src/common/enum/job-activity-area.enum';
+import { JobDutySystemEnum } from 'src/common/enum/job-duty-system.enum';
+import { JobEducationEnum } from 'src/common/enum/job-education.enum';
 
 @Entity('job')
 export class JobEntity extends BaseEntity {
@@ -19,38 +24,29 @@ export class JobEntity extends BaseEntity {
   @Column()
   title: string;
 
-  @Column()
-  jobActivity: string;
+  @Column({ enum: JobActivityAreaEnum, type: 'enum' })
+  activityArea: JobActivityAreaEnum;
 
-  @Column()
-  activityArea: string;
+  @Column({ enum: JobColaborationTypeEnum, type: 'enum' })
+  collaborationType: JobColaborationTypeEnum;
 
-  @Column()
-  location: string;
+  @Column({ type: 'int', nullable: true })
+  minimumSalary?: number;
 
-  @Column({ enum: ColaborationTypeEnum })
-  collaborationType: ColaborationTypeEnum;
-
-  @Column()
-  salary: string;
+  @Column({ nullable: true, type: 'jsonb' })
+  experience?: IJobExprience;
 
   @Column()
   description: string;
 
-  @Column()
-  experience: string;
+  @Column({ type: 'enum', enum: JobGenderEnum })
+  gender: JobGenderEnum;
 
-  @Column()
-  gender: string;
+  @Column({ type: 'enum', enum: JobDutySystemEnum })
+  dutySystem: JobDutySystemEnum;
 
-  @Column()
-  dutySystem: string;
-
-  @Column()
-  education: string;
-
-  @Column('varchar', { array: true, nullable: true })
-  skills?: string[];
+  @Column({ type: 'enum', enum: JobEducationEnum })
+  education: JobEducationEnum;
 
   @ManyToOne(() => CompanyEntity, (company) => company.jobs)
   @JoinColumn({ name: 'companyId' })

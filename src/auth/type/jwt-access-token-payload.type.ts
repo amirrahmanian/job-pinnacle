@@ -1,6 +1,6 @@
-import { RoleEnum } from 'src/common/enum/role.enum';
+import { UserRoleEnum } from 'src/common/enum/user-role.enum';
 
 export type JwtAccessTokenPayload = {
   userId: number;
-  role: RoleEnum;
+  role: UserRoleEnum;
 };

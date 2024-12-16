@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { UserEntity } from './user.entity';
-import { RoleEnum } from 'src/common/enum/role.enum';
+import { UserRoleEnum } from 'src/common/enum/user-role.enum';
 
 @Entity('session')
 @Index('session_key_idx', ['key'], { unique: true })
@@ -19,8 +19,8 @@ export class SessionEntity extends BaseEntity {
   @Column()
   userId: number;
 
-  @Column({ type: 'enum', enum: RoleEnum })
-  role: RoleEnum;
+  @Column({ type: 'enum', enum: UserRoleEnum })
+  role: UserRoleEnum;
 
   @Column()
   key: string;

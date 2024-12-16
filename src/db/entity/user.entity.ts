@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { JobEntity } from './job.entity';
-import { RoleEnum } from 'src/common/enum/role.enum';
+import { UserRoleEnum } from 'src/common/enum/user-role.enum';
 
 @Entity('user')
 export class UserEntity extends BaseEntity {
@@ -26,8 +26,8 @@ export class UserEntity extends BaseEntity {
   @Column()
   password: string;
 
-  @Column({ type: 'enum', enum: RoleEnum })
-  role: RoleEnum;
+  @Column({ type: 'enum', enum: UserRoleEnum })
+  role: UserRoleEnum;
 
   @Column({ nullable: true })
   resume?: string;

@@ -19,7 +19,7 @@ export class JwtAccessTokenGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
     private jwtService: JwtService,
-    private configService: ConfigService<AppEnvConfigType>,
+    configService: ConfigService<AppEnvConfigType>,
   ) {
     this.jwtSercret = configService.get('jwt', { infer: true }).secret;
   }

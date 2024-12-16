@@ -1,8 +1,8 @@
-import { RoleEnum } from 'src/common/enum/role.enum';
+import { UserRoleEnum } from 'src/common/enum/user-role.enum';
 
 export interface ISessionRefreshTokenPayload {
   userId: number;
-  role: RoleEnum;
+  role: UserRoleEnum;
   ip: string;
   location?: string;
   device?: string;
