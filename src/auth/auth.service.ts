@@ -26,6 +26,8 @@ import { OtpTypeEnum } from 'src/otp/enum/otp-type.enum';
 import { MailerService } from '@nestjs-modules/mailer';
 import { AppEnvConfigType } from 'src/common/type/app-env.type';
 import { ConfigService } from '@nestjs/config';
+import { ForgetPasswordVerifyOtpDto } from './dto/forget-password-verify-otp-body.dto';
+import { ForgetPasswordBodyDto } from './dto/forget-password-body.dto';
 
 @Injectable()
 export class AuthService {
@@ -150,6 +152,61 @@ export class AuthService {
         text: `Forgot your password? If you didn't forget your password, please ignore this email. otherwise copy the code : ${otp}`,
       });
     }
+  }
+
+  async forgetPasswordVerifyOtp(body: ForgetPasswordVerifyOtpDto) {
+    const user: Pick<UserEntity, 'id' | 'email'> =
+      await this.userRepository.findOne({
+        where: { email: body.email },
+        select: { id: true, email: true },
+      });
+
+    if (!user) throw new BadRequestException('not_found.user');
+
+    // verify otp
+    await this.otpService.verifyOtp({
+      id: user.email,
+      code: body.otpCode,
+      operation: OtpOperationTypeEnum.FORGET_PASSWORD,
+      type: OtpTypeEnum.EMAIL,
+    });
+
+    // create otp token
+    const token = await this.otpService.createOtp({
+      id: body.email,
+      operation: OtpOperationTypeEnum.FORGET_PASSWORD,
+      type: OtpTypeEnum.TOKEN,
+    });
+
+    return { token };
+  }
+
+  async forgetPassword(body: ForgetPasswordBodyDto) {
+    const user: Pick<UserEntity, 'id' | 'email'> =
+      await this.userRepository.findOne({
+        where: { email: body.email },
+        select: { id: true, email: true },
+      });
+
+    if (!user) throw new NotFoundException('not_found.user');
+
+    // verify otp
+    await this.otpService.verifyOtp({
+      id: user.email,
+      code: body.otpCode,
+      operation: OtpOperationTypeEnum.FORGET_PASSWORD,
+      type: OtpTypeEnum.TOKEN,
+    });
+
+    // purge all user active refresh tokens
+    await this.sessionService.purgeUserActiveTokens(user.id);
+
+    // hash password
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(body.password, salt);
+
+    // set new password
+    await this.userRepository.update(user.id, { password: hashedPassword });
   }
 
   async generateTokens(

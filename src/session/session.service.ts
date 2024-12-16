@@ -97,4 +97,11 @@ export class SessionService {
 
     return deleted;
   }
+
+  async purgeUserActiveTokens(userId: SessionEntity['userId']) {
+    await this.sessionRepository.softDelete({
+      userId,
+      deletedAt: IsNull(),
+    });
+  }
 }

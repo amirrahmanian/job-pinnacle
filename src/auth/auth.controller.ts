@@ -17,6 +17,8 @@ import { LogoutBodyDto } from './dto/logout-body.dto';
 import { User } from 'src/auth/decorator/user.decorator';
 import { UserPayload } from './type/user-payload.type';
 import { ForgetPasswordSendOtpBodyDto } from './dto/forget-password-send-otp-body.dto';
+import { ForgetPasswordVerifyOtpDto } from './dto/forget-password-verify-otp-body.dto';
+import { ForgetPasswordBodyDto } from './dto/forget-password-body.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -57,7 +59,7 @@ export class AuthController {
     return this.authService.logout(logoutBodyDto, userPayload);
   }
 
-  @Post('forget-password')
+  @Post('forget-password/send/otp')
   @Public()
   forgetPasswordSendOtp(
     @Body() forgetPasswordSendOtpBodyDto: ForgetPasswordSendOtpBodyDto,
@@ -65,17 +67,17 @@ export class AuthController {
     return this.authService.forgetPasswordSendOtp(forgetPasswordSendOtpBodyDto);
   }
 
-  // @Post()
-  // @Public()
-  // forgetPasswordVerifyOtp(
-  //   @Body() forgetPasswordBodyDto: ForgetPasswordBodyDto,
-  // ) {
-  //   return this.authService.forgetPasswordVerifyOtp(forgetPasswordBodyDto);
-  // }
+  @Post('forget-password/verify/otp')
+  @Public()
+  forgetPasswordVerifyOtp(
+    @Body() forgetPasswordVerifyOtpDto: ForgetPasswordVerifyOtpDto,
+  ) {
+    return this.authService.forgetPasswordVerifyOtp(forgetPasswordVerifyOtpDto);
+  }
 
-  // @Post()
-  // @Public()
-  // forgetPassword(@Body() forgetPasswordBodyDto: ForgetPasswordBodyDto) {
-  //   return this.authService.forgetPassword(forgetPasswordBodyDto);
-  // }
+  @Post('forget-password')
+  @Public()
+  forgetPassword(@Body() forgetPasswordBodyDto: ForgetPasswordBodyDto) {
+    return this.authService.forgetPassword(forgetPasswordBodyDto);
+  }
 }

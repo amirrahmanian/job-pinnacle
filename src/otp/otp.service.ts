@@ -8,6 +8,8 @@ import {
 import * as AsyncLock from 'async-lock';
 import { OtpTypeEnum } from './enum/otp-type.enum';
 import { randomInt, randomUUID } from 'crypto';
+import { VerifyOtpParams } from './interface/verify-otp.params';
+import { OTP_MAX_ATTEMPTS } from './constant/otp.constant';
 
 @Injectable()
 export class OtpService {
@@ -62,13 +64,36 @@ export class OtpService {
     });
   }
 
-  async verifyCode(createOtpParams: ICreateOtpParams, code: string) {
-    const { id, type, operation } = createOtpParams;
+  async verifyOtp(verifyOtpParams: VerifyOtpParams) {
+    const { id, code, type, operation } = verifyOtpParams;
     const otpKey = `${id}-${type}-${operation}`;
+    const attemptsKey = `${otpKey}:attempts`;
 
-    const realCode = (await this.redisClient.get(otpKey))?.split(':')[1] ?? [];
+    const otp = await this.redisClient.get(otpKey);
 
-    console.log(realCode, '   ', code);
+    if (!otp) throw new BadRequestException('not_valid.otp');
+
+    const attemptsVal = await this.redisClient.get(attemptsKey);
+
+    if (attemptsVal == null) {
+      throw new BadRequestException('not_valid.otp');
+    }
+
+    let attempts = +attemptsVal;
+
+    if (attempts >= OTP_MAX_ATTEMPTS)
+      throw new BadRequestException('not_valid.otp');
+
+    attempts = await this.redisClient.incr(attemptsKey);
+
+    if (attempts > OTP_MAX_ATTEMPTS)
+      throw new BadRequestException('not_valid.otp');
+
+    const storedCode = otp.split(':')[1];
+
+    if (storedCode != code) throw new BadRequestException('not_valid.otp');
+
+    await this.redisClient.del(otpKey, attemptsKey);
   }
 
   protected generateCode(type: OtpTypeEnum) {
