@@ -8,13 +8,13 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
-import { UserEntity } from './user.entity';
-import { CompanyEntity } from './company.entity';
 import { IJobExprience } from 'src/common/interface/exprience.interface';
 import { JobGenderEnum } from 'src/common/enum/job-gender.enum';
-import { JobActivityAreaEnum } from 'src/common/enum/job-activity-area.enum';
 import { JobDutySystemEnum } from 'src/common/enum/job-duty-system.enum';
 import { JobEducationEnum } from 'src/common/enum/job-education.enum';
+import { IJobColaborationTime } from 'src/common/interface/job-colaboration-time.interface';
+import { CompanyEntity } from './company.entity';
+import { JobSeekerEntity } from './job-seeker.entity';
 
 @Entity('job')
 export class JobEntity extends BaseEntity {
@@ -24,14 +24,11 @@ export class JobEntity extends BaseEntity {
   @Column()
   title: string;
 
-  @Column({ enum: JobActivityAreaEnum, type: 'enum' })
-  activityArea: JobActivityAreaEnum;
+  @Column({ enum: JobColaborationTypeEnum, type: 'enum', array: true })
+  collaborationType: JobColaborationTypeEnum[];
 
-  @Column({ enum: JobColaborationTypeEnum, type: 'enum' })
-  collaborationType: JobColaborationTypeEnum;
-
-  @Column({ type: 'int', nullable: true })
-  minimumSalary?: number;
+  @Column({ type: 'jsonb', nullable: true })
+  collaborationTime?: IJobColaborationTime;
 
   @Column({ nullable: true, type: 'jsonb' })
   experience?: IJobExprience;
@@ -39,19 +36,19 @@ export class JobEntity extends BaseEntity {
   @Column()
   description: string;
 
-  @Column({ type: 'enum', enum: JobGenderEnum })
-  gender: JobGenderEnum;
+  @Column({ type: 'enum', enum: JobGenderEnum, nullable: true })
+  gender?: JobGenderEnum;
 
-  @Column({ type: 'enum', enum: JobDutySystemEnum })
-  dutySystem: JobDutySystemEnum;
+  @Column({ type: 'enum', enum: JobDutySystemEnum, nullable: true })
+  dutySystem?: JobDutySystemEnum;
 
-  @Column({ type: 'enum', enum: JobEducationEnum })
-  education: JobEducationEnum;
+  @Column({ type: 'enum', enum: JobEducationEnum, nullable: true })
+  education?: JobEducationEnum;
 
-  @ManyToOne(() => CompanyEntity, (company) => company.jobs)
+  @ManyToOne(() => CompanyEntity, (company) => company.job)
   @JoinColumn({ name: 'companyId' })
   company: CompanyEntity;
 
-  @ManyToMany(() => UserEntity, (user) => user.appliedJobs)
-  appliedUsers: UserEntity[];
+  @ManyToMany(() => JobSeekerEntity, (jobSeeker) => jobSeeker.appliedJob)
+  jobSeeker: JobSeekerEntity[];
 }

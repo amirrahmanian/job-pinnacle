@@ -62,7 +62,7 @@ export class AuthService {
     const insertUserResult = await this.userRepository.insert({
       ...body,
       password: hashedPassword,
-      role: UserRoleEnum.USER,
+      role: UserRoleEnum.JOB_SEEKER,
     });
 
     const userId: UserEntity['id'] = insertUserResult.generatedMaps[0].id;
@@ -70,7 +70,7 @@ export class AuthService {
     const { accessToken, refreshToken } = await this.generateTokens(
       {
         id: userId,
-        role: UserRoleEnum.USER,
+        role: UserRoleEnum.JOB_SEEKER,
       },
       ip,
       headers,

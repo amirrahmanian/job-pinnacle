@@ -1,5 +1,17 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { BaseEntity } from './base.entity';
+import { ICompanyLocation } from 'src/common/interface/company-location.interface';
+import { ICompanySize } from 'src/common/interface/company-size.interface';
+import { CompanyIndustryEnum } from 'src/common/enum/company-industry.enum';
+import { CompanyOwnershipTypeEnum } from 'src/common/enum/company-ownership-type.enum';
+import { FounderEntity } from './founder.entity';
 import { JobEntity } from './job.entity';
 
 @Entity('company')
@@ -10,24 +22,34 @@ export class CompanyEntity extends BaseEntity {
   @Column()
   name: string;
 
+  @Column({ type: 'jsonb' })
+  location: ICompanyLocation;
+
   @Column({ nullable: true })
   logo?: string;
 
-  @Column()
-  phoneNumber: string;
-
   @Column({ nullable: true })
-  webSiteURL?: string;
+  webSite?: string;
+
+  @Column({ type: 'jsonb' })
+  size: ICompanySize;
+
+  @Column({ array: true, type: 'enum', enum: CompanyIndustryEnum })
+  Industry: CompanyIndustryEnum[];
+
+  @Column({ type: 'timestamptz' })
+  establishmentYear: Date;
+
+  @Column({ type: 'enum', enum: CompanyOwnershipTypeEnum })
+  ownershipType: CompanyOwnershipTypeEnum;
 
   @Column()
-  activityArea: string;
+  about: string;
 
-  @Column()
-  description: string;
-
-  @Column({ type: 'int' })
-  capacity: number;
+  @ManyToOne(() => FounderEntity)
+  @JoinColumn({ name: 'founderId' })
+  founder: FounderEntity;
 
   @OneToMany(() => JobEntity, (job) => job.company)
-  jobs: JobEntity[];
+  job: JobEntity[];
 }
