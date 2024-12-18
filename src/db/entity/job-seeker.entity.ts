@@ -8,8 +8,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
-import { JobEntity } from './job.entity';
 import { UserEntity } from './user.entity';
+import { JobEntity } from './job.entity';
 
 @Entity('job-seeker')
 export class JobSeekerEntity extends BaseEntity {
