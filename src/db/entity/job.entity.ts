@@ -39,11 +39,16 @@ export class JobEntity extends BaseEntity {
   @Column({ type: 'enum', enum: JobGenderEnum, nullable: true })
   gender?: JobGenderEnum;
 
-  @Column({ type: 'enum', enum: JobDutySystemEnum, nullable: true })
-  dutySystem?: JobDutySystemEnum;
+  @Column({
+    type: 'enum',
+    enum: JobDutySystemEnum,
+    array: true,
+    nullable: true,
+  })
+  dutySystem?: JobDutySystemEnum[];
 
-  @Column({ type: 'enum', enum: JobEducationEnum, nullable: true })
-  education?: JobEducationEnum;
+  @Column({ type: 'enum', enum: JobEducationEnum, array: true, nullable: true })
+  education?: JobEducationEnum[];
 
   @ManyToOne(() => CompanyEntity, (company) => company.job)
   @JoinColumn({ name: 'companyId' })
