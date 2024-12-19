@@ -13,7 +13,7 @@ export class FounderEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   cellphone: string;
 
   @OneToOne(() => UserEntity, (user) => user.founder)

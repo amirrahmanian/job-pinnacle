@@ -7,7 +7,7 @@ import {
 import { UserRepository } from 'src/db/repository/user.repository';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { SignUpUserBodyDto } from './dto/sign-up-user-body.dto';
+import { RegisterJobSeekerBodyDto } from './dto/register-job-seeker-body.dto';
 import { UserEntity } from 'src/db/entity/user.entity';
 import { UserRoleEnum } from 'src/common/enum/user-role.enum';
 import { IncomingHttpHeaders } from 'http';
@@ -28,6 +28,11 @@ import { AppEnvConfigType } from 'src/common/type/app-env.type';
 import { ConfigService } from '@nestjs/config';
 import { ForgetPasswordVerifyOtpDto } from './dto/forget-password-verify-otp-body.dto';
 import { ForgetPasswordBodyDto } from './dto/forget-password-body.dto';
+import { JobSeekerRepository } from 'src/db/repository/job-seeker.repository';
+import { RegisterFounderBodyDto } from './dto/register-founder-body.dto';
+import { FounderEntity } from 'src/db/entity/founder.entity';
+import { FounderRepository } from 'src/db/repository/founder.repository';
+import { RegisterFounderSendOtpBodyDto } from './dto/register-founder-send-otp-body.dto';
 
 @Injectable()
 export class AuthService {
@@ -35,6 +40,8 @@ export class AuthService {
 
   constructor(
     private userRepository: UserRepository,
+    private jobSeekerRepository: JobSeekerRepository,
+    private founderRepository: FounderRepository,
     private jwtService: JwtService,
     private sessionService: SessionService,
     private otpService: OtpService,
@@ -44,8 +51,8 @@ export class AuthService {
     this.nodeEnv = configService.get('nodeEnv', { infer: true });
   }
 
-  async register(
-    body: SignUpUserBodyDto,
+  async registerJobSeeker(
+    body: RegisterJobSeekerBodyDto,
     ip: string,
     headers: IncomingHttpHeaders,
   ) {
@@ -59,18 +66,89 @@ export class AuthService {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(body.password, salt);
 
-    const insertUserResult = await this.userRepository.insert({
-      ...body,
+    const userId = await this.jobSeekerRepository.createJobSeeker({
+      firstName: body.firstName,
+      lastName: body.lastName,
+      email: body.email,
       password: hashedPassword,
       role: UserRoleEnum.JOB_SEEKER,
     });
-
-    const userId: UserEntity['id'] = insertUserResult.generatedMaps[0].id;
 
     const { accessToken, refreshToken } = await this.generateTokens(
       {
         id: userId,
         role: UserRoleEnum.JOB_SEEKER,
+      },
+      ip,
+      headers,
+    );
+
+    return { accessToken, refreshToken };
+  }
+
+  async registerFounderSendOtp(body: RegisterFounderSendOtpBodyDto) {
+    const founder: Pick<FounderEntity, 'id'> =
+      await this.founderRepository.findOne({
+        where: { cellphone: body.cellphone },
+        select: { id: true },
+      });
+
+    if (founder) throw new BadRequestException('duplicate.cellphone');
+
+    const otp = await this.otpService.createOtp({
+      id: body.cellphone,
+      operation: OtpOperationTypeEnum.REGISTER,
+      type: OtpTypeEnum.SMS,
+      options: { ttl: 120 },
+    });
+
+    if (this.nodeEnv === 'development') {
+      console.log(
+        `we have sent the code(${otp}) to your phone number(${body.cellphone})`,
+      );
+    }
+  }
+
+  async registerFounder(
+    body: RegisterFounderBodyDto,
+    ip: string,
+    headers: IncomingHttpHeaders,
+  ) {
+    const user: Pick<UserEntity, 'id'> = await this.userRepository.findOne({
+      where: { email: body.email },
+      select: { id: true },
+    });
+
+    const founder: Pick<FounderEntity, 'id'> =
+      await this.founderRepository.findOne({
+        where: { cellphone: body.cellphone },
+        select: { id: true },
+      });
+
+    if (founder) throw new BadRequestException('duplicate.cellphone');
+    if (user) throw new BadRequestException('duplicate.email');
+
+    await this.otpService.verifyOtp({
+      id: body.cellphone,
+      code: body.otpCode,
+      operation: OtpOperationTypeEnum.REGISTER,
+      type: OtpTypeEnum.SMS,
+    });
+
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(body.password, salt);
+
+    const userId = await this.founderRepository.createFounder({
+      cellphone: body.cellphone,
+      password: hashedPassword,
+      role: UserRoleEnum.FOUNDER,
+      email: body.email,
+    });
+
+    const { accessToken, refreshToken } = await this.generateTokens(
+      {
+        id: userId,
+        role: UserRoleEnum.FOUNDER,
       },
       ip,
       headers,

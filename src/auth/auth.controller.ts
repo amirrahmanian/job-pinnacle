@@ -7,7 +7,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignUpUserBodyDto } from './dto/sign-up-user-body.dto';
+import { RegisterJobSeekerBodyDto } from './dto/register-job-seeker-body.dto';
 import { IncomingHttpHeaders } from 'http';
 import { ClientIp } from 'src/common/decorator/client-ip.decorator';
 import { LoginBodyDto } from './dto/login-body.dto';
@@ -19,19 +19,45 @@ import { UserPayload } from './type/user-payload.type';
 import { ForgetPasswordSendOtpBodyDto } from './dto/forget-password-send-otp-body.dto';
 import { ForgetPasswordVerifyOtpDto } from './dto/forget-password-verify-otp-body.dto';
 import { ForgetPasswordBodyDto } from './dto/forget-password-body.dto';
+import { RegisterFounderBodyDto } from './dto/register-founder-body.dto';
+import { RegisterFounderSendOtpBodyDto } from './dto/register-founder-send-otp-body.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('register')
+  @Post('register-job-seeker')
   @Public()
-  register(
-    @Body() signUpUserBodyDto: SignUpUserBodyDto,
+  registerJobSeeker(
+    @Body() registerJobSeekerBodyDto: RegisterJobSeekerBodyDto,
     @ClientIp() ip: string,
     @Headers() headers: IncomingHttpHeaders,
   ) {
-    return this.authService.register(signUpUserBodyDto, ip, headers);
+    return this.authService.registerJobSeeker(
+      registerJobSeekerBodyDto,
+      ip,
+      headers,
+    );
+  }
+
+  @Post('register-founder/send/otp')
+  @Public()
+  registerFounderSendOtp(@Body() dto: RegisterFounderSendOtpBodyDto) {
+    return this.authService.registerFounderSendOtp(dto);
+  }
+
+  @Post('register-founder')
+  @Public()
+  registerFounder(
+    @Body() registerFounderBodyDto: RegisterFounderBodyDto,
+    @ClientIp() ip: string,
+    @Headers() headers: IncomingHttpHeaders,
+  ) {
+    return this.authService.registerFounder(
+      registerFounderBodyDto,
+      ip,
+      headers,
+    );
   }
 
   @Post('login')

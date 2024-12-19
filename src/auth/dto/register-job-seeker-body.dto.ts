@@ -1,6 +1,6 @@
 import { IsDefined, IsEmail, IsString, MinLength } from 'class-validator';
 
-export class SignUpUserBodyDto {
+export class RegisterJobSeekerBodyDto {
   @IsDefined()
   @IsString()
   firstName: string;
