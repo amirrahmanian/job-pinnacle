@@ -9,7 +9,7 @@ import { CompanyRepository } from 'src/db/repository/company.repository';
 import { CompanyEntity } from 'src/db/entity/company.entity';
 import { UserEntity } from 'src/db/entity/user.entity';
 import { UserRepository } from 'src/db/repository/user.repository';
-import { CompanyIdParamDto } from './dto/company-id-param.dto';
+import { CompanyIdParamDto } from '../common/dto/company-id-param.dto';
 import { UpdateCompanyBodyDto } from './dto/update-company-body.dto';
 import { FounderEntity } from 'src/db/entity/founder.entity';
 import { FounderRepository } from 'src/db/repository/founder.repository';

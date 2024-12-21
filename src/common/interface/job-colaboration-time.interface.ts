@@ -1,4 +1,4 @@
 export interface IJobColaborationTime {
-  from: number;
-  to: number;
+  from?: Date;
+  to?: Date;
 }

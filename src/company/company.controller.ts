@@ -6,7 +6,7 @@ import { CreateCompanyBodyDto } from './dto/create-company-body.dto';
 import { User } from 'src/auth/decorator/user.decorator';
 import { UserPayload } from 'src/auth/type/user-payload.type';
 import { UpdateCompanyBodyDto } from './dto/update-company-body.dto';
-import { CompanyIdParamDto } from './dto/company-id-param.dto';
+import { CompanyIdParamDto } from '../common/dto/company-id-param.dto';
 
 @Controller('company')
 export class CompanyController {
