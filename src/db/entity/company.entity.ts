@@ -19,6 +19,9 @@ export class CompanyEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ type: 'int' })
+  userId: number;
+
   @Column()
   name: string;
 
@@ -35,7 +38,7 @@ export class CompanyEntity extends BaseEntity {
   size: ICompanySize;
 
   @Column({ array: true, type: 'enum', enum: CompanyIndustryEnum })
-  Industry: CompanyIndustryEnum[];
+  industry: CompanyIndustryEnum[];
 
   @Column({ type: 'timestamptz' })
   establishmentYear: Date;

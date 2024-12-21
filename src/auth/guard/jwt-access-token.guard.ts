@@ -11,6 +11,8 @@ import { JwtService } from '@nestjs/jwt';
 import { JwtAccessTokenPayload } from '../type/jwt-access-token-payload.type';
 import { AppEnvConfigType } from 'src/common/type/app-env.type';
 import { ConfigService } from '@nestjs/config';
+import { UserRoleEnum } from 'src/common/enum/user-role.enum';
+import { API_PRIVATE_META_DATA } from '../decorator/private.decorator';
 
 @Injectable()
 export class JwtAccessTokenGuard implements CanActivate {
@@ -40,6 +42,13 @@ export class JwtAccessTokenGuard implements CanActivate {
         token,
         { secret: this.jwtSercret },
       );
+
+      const isPrivate = this.reflector.get<UserRoleEnum>(
+        API_PRIVATE_META_DATA,
+        context.getHandler(),
+      );
+
+      if (isPrivate && payload.role !== isPrivate) throw new Error();
 
       req['user'] = payload;
     } catch (err) {
