@@ -21,6 +21,9 @@ export class JobEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ type: 'int' })
+  userId: number;
+
   @Column()
   title: string;
 

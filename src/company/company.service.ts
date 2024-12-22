@@ -103,8 +103,6 @@ export class CompanyService {
         logo: logo?.path,
       },
     );
-
-    return { id: company.id };
   }
 
   async deleteCompany(param: CompanyIdParamDto, userPayload: UserPayload) {
