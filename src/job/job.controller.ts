@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Param, Post, Put } from '@nestjs/common';
 import { JobService } from './job.service';
 import { UserRoleEnum } from 'src/common/enum/user-role.enum';
 import { User } from 'src/auth/decorator/user.decorator';
@@ -39,5 +39,14 @@ export class JobController {
       updateJobBodyDto,
       userPayload,
     );
+  }
+
+  @Delete(':jobId')
+  @Private(UserRoleEnum.FOUNDER)
+  async deleteJob(
+    @Param() jobIdParamDto: JobIdParamDto,
+    @User() userPayload: UserPayload,
+  ) {
+    return this.jobService.deleteJob(jobIdParamDto, userPayload);
   }
 }

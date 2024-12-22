@@ -15,10 +15,18 @@ import { JobEducationEnum } from 'src/common/enum/job-education.enum';
 import { JobGenderEnum } from 'src/common/enum/job-gender.enum';
 
 export class CreateJobBodyCollaborationTimeDto {
+  /**
+   * Job Collaboration Time From
+   * @example 2000-10-10 08:00:00
+   */
   @IsOptional()
   @IsDateString()
   from?: string;
 
+  /**
+   * Job Collaboration Time TO
+   * @example 2000-10-10 18:00:00
+   */
   @IsOptional()
   @IsDateString()
   to?: string;

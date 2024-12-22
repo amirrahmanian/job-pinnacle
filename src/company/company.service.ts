@@ -13,6 +13,7 @@ import { CompanyIdParamDto } from '../common/dto/company-id-param.dto';
 import { UpdateCompanyBodyDto } from './dto/update-company-body.dto';
 import { FounderEntity } from 'src/db/entity/founder.entity';
 import { FounderRepository } from 'src/db/repository/founder.repository';
+import { DeepPartial } from 'typeorm';
 
 @Injectable()
 export class CompanyService {
@@ -82,9 +83,10 @@ export class CompanyService {
 
     if (company.userId !== userPayload.userId) throw new ForbiddenException();
 
-    let establishmentAt: Date;
-    if (body.establishmentYear != undefined) {
-      establishmentAt = new Date(body.establishmentYear);
+    const updateObj: DeepPartial<CompanyEntity> = {};
+
+    if (body.establishmentYear != null) {
+      updateObj.establishmentYear = new Date(body.establishmentYear);
     }
 
     await this.companyRepository.update(
@@ -97,7 +99,7 @@ export class CompanyService {
         webSite: body.webSite,
         size: body.size,
         industry: body.industry,
-        establishmentYear: establishmentAt,
+        establishmentYear: updateObj.establishmentYear,
         ownershipType: body.ownershipType,
         about: body.about,
         logo: logo?.path,
