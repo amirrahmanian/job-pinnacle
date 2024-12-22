@@ -17,6 +17,9 @@ export class JobSeekerEntity extends BaseEntity {
   id: number;
 
   @Column()
+  userId: number;
+
+  @Column()
   firstName: string;
 
   @Column()

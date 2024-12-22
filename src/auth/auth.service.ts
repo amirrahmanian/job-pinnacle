@@ -119,6 +119,8 @@ export class AuthService {
       select: { id: true },
     });
 
+    if (user) throw new BadRequestException('duplicate.email');
+
     const founder: Pick<FounderEntity, 'id'> =
       await this.founderRepository.findOne({
         where: { cellphone: body.cellphone },
@@ -126,7 +128,6 @@ export class AuthService {
       });
 
     if (founder) throw new BadRequestException('duplicate.cellphone');
-    if (user) throw new BadRequestException('duplicate.email');
 
     await this.otpService.verifyOtp({
       id: body.cellphone,
@@ -158,10 +159,11 @@ export class AuthService {
   }
 
   async login(body: LoginBodyDto, ip: string, headers: IncomingHttpHeaders) {
-    const user = await this.userRepository.findOne({
-      where: { email: body.email },
-      select: { id: true, role: true, password: true },
-    });
+    const user: Pick<UserEntity, 'id' | 'role' | 'password'> =
+      await this.userRepository.findOne({
+        where: { email: body.email },
+        select: { id: true, role: true, password: true },
+      });
 
     if (!user) throw new NotFoundException('user.not_found');
 
@@ -239,7 +241,7 @@ export class AuthService {
         select: { id: true, email: true },
       });
 
-    if (!user) throw new BadRequestException('not_found.user');
+    if (!user) throw new NotFoundException('not_found.user');
 
     // verify otp
     await this.otpService.verifyOtp({

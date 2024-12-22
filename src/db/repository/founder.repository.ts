@@ -29,6 +29,7 @@ export class FounderRepository extends BaseRepository<FounderEntity> {
 
       await queryRunner.manager.insert(FounderEntity, {
         cellphone: entity.cellphone,
+        userId,
         user: { id: userId },
       });
 

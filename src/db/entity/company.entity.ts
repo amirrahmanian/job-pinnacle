@@ -19,8 +19,8 @@ export class CompanyEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'int' })
-  userId: number;
+  @Column()
+  founderId: number;
 
   @Column()
   name: string;

@@ -30,6 +30,7 @@ export class JobSeekerRepository extends BaseRepository<JobSeekerEntity> {
       await queryRunner.manager.insert(JobSeekerEntity, {
         firstName: entity.firstName,
         lastName: entity.lastName,
+        userId,
         user: { id: userId },
       });
 

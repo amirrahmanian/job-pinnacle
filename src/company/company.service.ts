@@ -7,8 +7,6 @@ import { CreateCompanyBodyDto } from './dto/create-company-body.dto';
 import { UserPayload } from 'src/auth/type/user-payload.type';
 import { CompanyRepository } from 'src/db/repository/company.repository';
 import { CompanyEntity } from 'src/db/entity/company.entity';
-import { UserEntity } from 'src/db/entity/user.entity';
-import { UserRepository } from 'src/db/repository/user.repository';
 import { CompanyIdParamDto } from '../common/dto/company-id-param.dto';
 import { UpdateCompanyBodyDto } from './dto/update-company-body.dto';
 import { FounderEntity } from 'src/db/entity/founder.entity';
@@ -19,7 +17,6 @@ import { DeepPartial } from 'typeorm';
 export class CompanyService {
   constructor(
     private companyRepository: CompanyRepository,
-    private userRepository: UserRepository,
     private founderRepository: FounderRepository,
   ) {}
 
@@ -28,18 +25,9 @@ export class CompanyService {
     userPayload: UserPayload,
     logo?: any,
   ) {
-    const user: Pick<UserEntity, 'id'> = await this.userRepository.findOne({
-      where: { id: userPayload.userId },
-      select: { id: true },
-    });
-
-    if (!user) {
-      throw new NotFoundException('user.not_found');
-    }
-
     const founder: Pick<FounderEntity, 'id'> =
       await this.founderRepository.findOne({
-        where: { user: { id: user.id } },
+        where: { userId: userPayload.userId },
         select: { id: true },
       });
 
@@ -57,7 +45,7 @@ export class CompanyService {
       ownershipType: body.ownershipType,
       about: body.about,
       logo: logo?.path,
-      userId: user.id,
+      founderId: founder.id,
       founder: { id: founder.id },
     });
 
@@ -73,15 +61,23 @@ export class CompanyService {
     userPayload: UserPayload,
     logo?: any,
   ) {
-    const company: Pick<CompanyEntity, 'id' | 'userId'> =
+    const company: Pick<CompanyEntity, 'id' | 'founderId'> =
       await this.companyRepository.findOne({
         where: { id: param.companyId },
-        select: { id: true, userId: true },
+        select: { id: true, founderId: true },
       });
 
     if (!company) throw new NotFoundException('company.not_found');
 
-    if (company.userId !== userPayload.userId) throw new ForbiddenException();
+    const founder: Pick<FounderEntity, 'id'> =
+      await this.founderRepository.findOne({
+        where: { userId: userPayload.userId },
+        select: { id: true },
+      });
+
+    if (!founder) throw new NotFoundException('founder.not_found');
+
+    if (company.founderId !== founder.id) throw new ForbiddenException();
 
     const updateObj: DeepPartial<CompanyEntity> = {};
 
@@ -108,22 +104,26 @@ export class CompanyService {
   }
 
   async deleteCompany(param: CompanyIdParamDto, userPayload: UserPayload) {
-    const company: Pick<CompanyEntity, 'id' | 'userId'> =
+    const founder: Pick<FounderEntity, 'id'> =
+      await this.founderRepository.findOne({
+        where: { userId: userPayload.userId },
+        select: { id: true },
+      });
+
+    if (!founder) throw new NotFoundException('founder.not_found');
+
+    const company: Pick<CompanyEntity, 'id' | 'founderId'> =
       await this.companyRepository.findOne({
         where: { id: param.companyId },
-        select: { id: true, userId: true },
+        select: { id: true, founderId: true },
       });
 
     if (!company) throw new NotFoundException('company.not_found');
 
-    if (company.userId !== userPayload.userId) throw new ForbiddenException();
+    if (founder.id !== company.founderId) {
+      throw new ForbiddenException();
+    }
 
-    const deleteResualt = this.companyRepository.softDelete({
-      id: param.companyId,
-    });
-
-    const deleted = !!deleteResualt;
-
-    return deleted;
+    await this.companyRepository.softDeleteWithRelatedData(company.id);
   }
 }

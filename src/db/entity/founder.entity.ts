@@ -13,6 +13,9 @@ export class FounderEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  userId: number;
+
   @Column({ unique: true })
   cellphone: string;
 
