@@ -3,8 +3,8 @@ import {
   Column,
   Entity,
   JoinColumn,
-  ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
@@ -14,7 +14,8 @@ import { JobDutySystemEnum } from 'src/common/enum/job-duty-system.enum';
 import { JobEducationEnum } from 'src/common/enum/job-education.enum';
 import { IJobColaborationTime } from 'src/common/interface/job-colaboration-time.interface';
 import { CompanyEntity } from './company.entity';
-import { JobSeekerEntity } from './job-seeker.entity';
+import { JobAppliedEntity } from './job-applied.entity';
+import { JobsavedEntity } from './job-saved.entity';
 
 @Entity('job')
 export class JobEntity extends BaseEntity {
@@ -57,6 +58,9 @@ export class JobEntity extends BaseEntity {
   @JoinColumn({ name: 'companyId' })
   company: CompanyEntity;
 
-  @ManyToMany(() => JobSeekerEntity, (jobSeeker) => jobSeeker.appliedJob)
-  jobSeeker: JobSeekerEntity[];
+  @OneToMany(() => JobAppliedEntity, (jobApplied) => jobApplied.job)
+  jobApplied: JobAppliedEntity[];
+
+  @OneToMany(() => JobsavedEntity, (jobSaved) => jobSaved.job)
+  jobSaved: JobsavedEntity[];
 }

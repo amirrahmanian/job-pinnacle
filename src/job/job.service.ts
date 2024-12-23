@@ -15,6 +15,10 @@ import { UpdateJobBodyDto } from './dto/update-job-body.dto';
 import { DeepPartial } from 'typeorm';
 import { FounderRepository } from 'src/db/repository/founder.repository';
 import { FounderEntity } from 'src/db/entity/founder.entity';
+import { JobSavedRepository } from 'src/db/repository/job-saved.repository';
+import { JobSeekerRepository } from 'src/db/repository/job-seeker.repository';
+import { JobSeekerEntity } from 'src/db/entity/job-seeker.entity';
+import { JobAppliedRepository } from 'src/db/repository/job-applied.repository';
 
 @Injectable()
 export class JobService {
@@ -22,6 +26,9 @@ export class JobService {
     private founderRepository: FounderRepository,
     private jobRepository: JobRepository,
     private companyRepository: CompanyRepository,
+    private jobSeekerRepository: JobSeekerRepository,
+    private jobSavedRepository: JobSavedRepository,
+    private jobAppliedRepository: JobAppliedRepository,
   ) {}
 
   async createJob(
@@ -170,6 +177,54 @@ export class JobService {
 
     await this.jobRepository.softDelete({
       id: param.jobId,
+    });
+  }
+
+  async saveJob(param: JobIdParamDto, userPayload: UserPayload) {
+    const jobSeeker: Pick<JobSeekerEntity, 'id'> =
+      await this.jobSeekerRepository.findOne({
+        where: { userId: userPayload.userId },
+      });
+
+    if (!jobSeeker) throw new NotFoundException('jobSeeker.not_found');
+
+    const job: Pick<JobEntity, 'id'> = await this.jobRepository.findOne({
+      where: { id: param.jobId },
+    });
+
+    if (!job) throw new NotFoundException('job.not_found');
+
+    await this.jobSavedRepository.insertOrIgnore({
+      jobId: param.jobId,
+      jobSeekerId: jobSeeker.id,
+    });
+  }
+
+  async applieJob(param: JobIdParamDto, userPayload: UserPayload) {
+    const jobSeeker: Pick<JobSeekerEntity, 'id'> =
+      await this.jobSeekerRepository.findOne({
+        where: { userId: userPayload.userId },
+      });
+
+    if (!jobSeeker) throw new NotFoundException('jobSeeker.not_found');
+
+    const job: Pick<JobEntity, 'id'> = await this.jobRepository.findOne({
+      where: { id: param.jobId },
+    });
+
+    if (!job) throw new NotFoundException('job.not_found');
+
+    /**
+     * TODO: check jobSeeker did not apply recently
+     */
+
+    /**
+     * TODO: implement with kafka
+     */
+
+    await this.jobAppliedRepository.insertOrIgnore({
+      jobId: param.jobId,
+      jobSeekerId: jobSeeker.id,
     });
   }
 }

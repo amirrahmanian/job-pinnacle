@@ -2,14 +2,14 @@ import {
   Column,
   Entity,
   JoinColumn,
-  JoinTable,
-  ManyToMany,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { UserEntity } from './user.entity';
-import { JobEntity } from './job.entity';
+import { JobAppliedEntity } from './job-applied.entity';
+import { JobsavedEntity } from './job-saved.entity';
 
 @Entity('job-seeker')
 export class JobSeekerEntity extends BaseEntity {
@@ -32,11 +32,9 @@ export class JobSeekerEntity extends BaseEntity {
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
 
-  @ManyToMany(() => JobEntity, (job) => job.jobSeeker)
-  @JoinTable({ name: 'applied-job' })
-  appliedJob: JobEntity[];
+  @OneToMany(() => JobAppliedEntity, (jobApplied) => jobApplied.jobSeeker)
+  jobApplied: JobAppliedEntity[];
 
-  @ManyToMany(() => JobEntity)
-  @JoinTable({ name: 'saved-job' })
-  savedJob: JobEntity[];
+  @OneToMany(() => JobsavedEntity, (jobSaved) => jobSaved.jobSeeker)
+  jobSaved: JobsavedEntity[];
 }
