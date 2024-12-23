@@ -59,7 +59,7 @@ export class JobController {
     return this.jobService.deleteJob(jobIdParamDto, userPayload);
   }
 
-  @Post('apply/:jobId')
+  @Post(':jobId/apply')
   @Private(UserRoleEnum.JOB_SEEKER)
   async applyJob(
     @Param() jobIdParamDto: JobIdParamDto,
@@ -68,7 +68,7 @@ export class JobController {
     return this.jobService.applyJob(jobIdParamDto, userPayload);
   }
 
-  @Post('save/:jobId')
+  @Post(':jobId/save')
   @Private(UserRoleEnum.JOB_SEEKER)
   async saveJob(
     @Param() jobIdParamDto: JobIdParamDto,
