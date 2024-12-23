@@ -85,14 +85,6 @@ export class JobService {
     body: UpdateJobBodyDto,
     userPayload: UserPayload,
   ) {
-    const founder: Pick<FounderEntity, 'id'> =
-      await this.founderRepository.findOne({
-        where: { userId: userPayload.userId },
-        select: { id: true },
-      });
-
-    if (!founder) throw new NotFoundException('founder.not_found');
-
     const job: Pick<JobEntity, 'id' | 'companyId'> =
       await this.jobRepository.findOne({
         where: { id: param.jobId },
@@ -101,26 +93,34 @@ export class JobService {
 
     if (!job) throw new NotFoundException('job.not_found');
 
-    const company: Pick<CompanyEntity, 'id'> =
+    const company: Pick<CompanyEntity, 'id' | 'founderId'> =
       await this.companyRepository.findOne({
-        where: { founderId: founder.id },
-        select: { id: true },
+        where: { id: job.companyId },
+        select: { id: true, founderId: true },
       });
 
     if (!company) throw new NotFoundException('company.not_found');
 
-    if (company.id !== job.companyId) {
+    const founder: Pick<FounderEntity, 'id'> =
+      await this.founderRepository.findOne({
+        where: { userId: userPayload.userId },
+        select: { id: true },
+      });
+
+    if (!founder) throw new NotFoundException('founder.not_found');
+
+    if (founder.id !== company.founderId) {
       throw new ForbiddenException();
     }
 
     const updateObj: DeepPartial<JobEntity> = {};
 
-    if (body.collaborationTime !== null) {
+    if (body.collaborationTime) {
       updateObj.collaborationTime = {
         from: new Date(body.collaborationTime.from),
         to: new Date(body.collaborationTime.to),
       };
-    } else {
+    } else if (body.collaborationTime === null) {
       updateObj.collaborationTime = null;
     }
 
@@ -140,14 +140,6 @@ export class JobService {
   }
 
   async deleteJob(param: JobIdParamDto, userPayload: UserPayload) {
-    const founder: Pick<FounderEntity, 'id'> =
-      await this.founderRepository.findOne({
-        where: { userId: userPayload.userId },
-        select: { id: true },
-      });
-
-    if (!founder) throw new NotFoundException('founder.not_found');
-
     const job: Pick<JobEntity, 'id' | 'companyId'> =
       await this.jobRepository.findOne({
         where: { id: param.jobId },
@@ -156,15 +148,23 @@ export class JobService {
 
     if (!job) throw new NotFoundException('job.not_found');
 
-    const company: Pick<CompanyEntity, 'id'> =
+    const company: Pick<CompanyEntity, 'id' | 'founderId'> =
       await this.companyRepository.findOne({
-        where: { founderId: founder.id },
-        select: { id: true },
+        where: { id: job.companyId },
+        select: { id: true, founderId: true },
       });
 
     if (!company) throw new NotFoundException('company.not_found');
 
-    if (company.id !== job.companyId) {
+    const founder: Pick<FounderEntity, 'id'> =
+      await this.founderRepository.findOne({
+        where: { userId: userPayload.userId },
+        select: { id: true },
+      });
+
+    if (!founder) throw new NotFoundException('founder.not_found');
+
+    if (founder.id !== company.founderId) {
       throw new ForbiddenException();
     }
 

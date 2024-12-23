@@ -81,7 +81,7 @@ export class CompanyService {
 
     const updateObj: DeepPartial<CompanyEntity> = {};
 
-    if (body.establishmentYear != null) {
+    if (body.establishmentYear) {
       updateObj.establishmentYear = new Date(body.establishmentYear);
     }
 
