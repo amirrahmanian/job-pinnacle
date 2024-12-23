@@ -200,7 +200,7 @@ export class JobService {
     });
   }
 
-  async applieJob(param: JobIdParamDto, userPayload: UserPayload) {
+  async applyJob(param: JobIdParamDto, userPayload: UserPayload) {
     const jobSeeker: Pick<JobSeekerEntity, 'id'> =
       await this.jobSeekerRepository.findOne({
         where: { userId: userPayload.userId },
@@ -222,9 +222,9 @@ export class JobService {
      * TODO: implement with kafka
      */
 
-    await this.jobAppliedRepository.insertOrIgnore({
-      jobId: param.jobId,
-      jobSeekerId: jobSeeker.id,
-    });
+    // await this.jobAppliedRepository.insertOrIgnore({
+    //   jobId: param.jobId,
+    //   jobSeekerId: jobSeeker.id,
+    // });
   }
 }

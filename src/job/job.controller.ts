@@ -49,4 +49,22 @@ export class JobController {
   ) {
     return this.jobService.deleteJob(jobIdParamDto, userPayload);
   }
+
+  @Post('apply/:jobId')
+  @Private(UserRoleEnum.JOB_SEEKER)
+  async applyJob(
+    @Param() jobIdParamDto: JobIdParamDto,
+    @User() userPayload: UserPayload,
+  ) {
+    return this.jobService.applyJob(jobIdParamDto, userPayload);
+  }
+
+  @Post('save/:jobId')
+  @Private(UserRoleEnum.JOB_SEEKER)
+  async saveJob(
+    @Param() jobIdParamDto: JobIdParamDto,
+    @User() userPayload: UserPayload,
+  ) {
+    return this.jobService.saveJob(jobIdParamDto, userPayload);
+  }
 }
