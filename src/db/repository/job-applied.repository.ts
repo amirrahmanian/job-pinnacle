@@ -9,7 +9,7 @@ export class JobAppliedRepository extends BaseRepository<JobAppliedEntity> {
   }
 
   async insertOrIgnore(
-    entity: Pick<JobAppliedEntity, 'jobId' | 'jobSeekerId'>,
+    entity: Pick<JobAppliedEntity, 'jobId' | 'jobSeekerId' | 'status'>,
   ) {
     return this.createQueryBuilder()
       .insert()
@@ -17,6 +17,7 @@ export class JobAppliedRepository extends BaseRepository<JobAppliedEntity> {
       .values({
         jobId: entity.jobId,
         jobSeekerId: entity.jobSeekerId,
+        status: entity.status,
       })
       .orIgnore()
       .execute();

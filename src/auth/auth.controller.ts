@@ -28,7 +28,7 @@ export class AuthController {
 
   @Post('register-job-seeker')
   @Public()
-  registerJobSeeker(
+  async registerJobSeeker(
     @Body() registerJobSeekerBodyDto: RegisterJobSeekerBodyDto,
     @ClientIp() ip: string,
     @Headers() headers: IncomingHttpHeaders,
@@ -42,13 +42,13 @@ export class AuthController {
 
   @Post('register-founder/send/otp')
   @Public()
-  registerFounderSendOtp(@Body() dto: RegisterFounderSendOtpBodyDto) {
+  async registerFounderSendOtp(@Body() dto: RegisterFounderSendOtpBodyDto) {
     return this.authService.registerFounderSendOtp(dto);
   }
 
   @Post('register-founder')
   @Public()
-  registerFounder(
+  async registerFounder(
     @Body() registerFounderBodyDto: RegisterFounderBodyDto,
     @ClientIp() ip: string,
     @Headers() headers: IncomingHttpHeaders,
@@ -62,7 +62,7 @@ export class AuthController {
 
   @Post('login')
   @Public()
-  login(
+  async login(
     @Body() loginBodyDto: LoginBodyDto,
     @ClientIp() ip: string,
     @Headers() headers: IncomingHttpHeaders,
@@ -72,13 +72,13 @@ export class AuthController {
 
   @Post('refresh-token')
   @Public()
-  refresh(@Body() refreshToken: RefreshQueryBodyDto) {
+  async refresh(@Body() refreshToken: RefreshQueryBodyDto) {
     return this.authService.refresh(refreshToken);
   }
 
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
-  logout(
+  async logout(
     @Body() logoutBodyDto: LogoutBodyDto,
     @User() userPayload: UserPayload,
   ) {
@@ -87,7 +87,7 @@ export class AuthController {
 
   @Post('forget-password/send/otp')
   @Public()
-  forgetPasswordSendOtp(
+  async forgetPasswordSendOtp(
     @Body() forgetPasswordSendOtpBodyDto: ForgetPasswordSendOtpBodyDto,
   ) {
     return this.authService.forgetPasswordSendOtp(forgetPasswordSendOtpBodyDto);
@@ -95,7 +95,7 @@ export class AuthController {
 
   @Post('forget-password/verify/otp')
   @Public()
-  forgetPasswordVerifyOtp(
+  async forgetPasswordVerifyOtp(
     @Body() forgetPasswordVerifyOtpDto: ForgetPasswordVerifyOtpDto,
   ) {
     return this.authService.forgetPasswordVerifyOtp(forgetPasswordVerifyOtpDto);
@@ -103,7 +103,7 @@ export class AuthController {
 
   @Post('forget-password')
   @Public()
-  forgetPassword(@Body() forgetPasswordBodyDto: ForgetPasswordBodyDto) {
+  async forgetPassword(@Body() forgetPasswordBodyDto: ForgetPasswordBodyDto) {
     return this.authService.forgetPassword(forgetPasswordBodyDto);
   }
 }

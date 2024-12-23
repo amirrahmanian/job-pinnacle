@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { Private } from 'src/auth/decorator/private.decorator';
 import { UserRoleEnum } from 'src/common/enum/user-role.enum';
 import { CompanyService } from './company.service';
@@ -7,6 +15,7 @@ import { User } from 'src/auth/decorator/user.decorator';
 import { UserPayload } from 'src/auth/type/user-payload.type';
 import { UpdateCompanyBodyDto } from './dto/update-company-body.dto';
 import { CompanyIdParamDto } from '../common/dto/company-id-param.dto';
+import { Public } from 'src/auth/decorator/public.decorator';
 
 @Controller('company')
 export class CompanyController {
@@ -14,7 +23,7 @@ export class CompanyController {
 
   @Post()
   @Private(UserRoleEnum.FOUNDER)
-  createCompany(
+  async createCompany(
     @Body() createCompanyBodyDto: CreateCompanyBodyDto,
     @User() userPayload: UserPayload,
   ) {
@@ -23,7 +32,7 @@ export class CompanyController {
 
   @Put(':companyId')
   @Private(UserRoleEnum.FOUNDER)
-  updateCompany(
+  async updateCompany(
     @Param() companyIdParamDto: CompanyIdParamDto,
     @Body() updateCompanyBodyDto: UpdateCompanyBodyDto,
     @User() userPayload: UserPayload,
@@ -42,5 +51,11 @@ export class CompanyController {
     @User() userPayload: UserPayload,
   ) {
     return this.companyService.deleteCompany(companyIdParamDto, userPayload);
+  }
+
+  @Get(':companyId/info')
+  @Public()
+  getCompanyInfo(@Param() companyIdParamDto: CompanyIdParamDto) {
+    return this.companyService.getCompanyInfo(companyIdParamDto);
   }
 }

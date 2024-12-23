@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { JobService } from './job.service';
 import { UserRoleEnum } from 'src/common/enum/user-role.enum';
 import { User } from 'src/auth/decorator/user.decorator';
@@ -8,6 +16,7 @@ import { CreateJobBodyDto } from './dto/create-job-body.dto';
 import { UserPayload } from 'src/auth/type/user-payload.type';
 import { JobIdParamDto } from './dto/job-id-param.dto';
 import { UpdateJobBodyDto } from './dto/update-job-body.dto';
+import { Public } from 'src/auth/decorator/public.decorator';
 
 @Controller('job')
 export class JobController {
@@ -15,7 +24,7 @@ export class JobController {
 
   @Post(':companyId')
   @Private(UserRoleEnum.FOUNDER)
-  createJob(
+  async createJob(
     @Param() companyIdParamDto: CompanyIdParamDto,
     @Body() createJobBodyDto: CreateJobBodyDto,
     @User() userPayload: UserPayload,
@@ -29,7 +38,7 @@ export class JobController {
 
   @Put(':jobId')
   @Private(UserRoleEnum.FOUNDER)
-  updateJob(
+  async updateJob(
     @Param() jobIdParamDto: JobIdParamDto,
     @Body() updateJobBodyDto: UpdateJobBodyDto,
     @User() userPayload: UserPayload,
@@ -66,5 +75,11 @@ export class JobController {
     @User() userPayload: UserPayload,
   ) {
     return this.jobService.saveJob(jobIdParamDto, userPayload);
+  }
+
+  @Get(':jobId/info')
+  @Public()
+  async getJobInfo(@Param() jobIdParamDto: JobIdParamDto) {
+    return this.jobService.getJobInfo(jobIdParamDto);
   }
 }

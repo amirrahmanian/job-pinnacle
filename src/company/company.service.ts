@@ -126,4 +126,38 @@ export class CompanyService {
 
     await this.companyRepository.softDeleteWithRelatedData(company.id);
   }
+
+  async getCompanyInfo(param: CompanyIdParamDto) {
+    const company: Pick<
+      CompanyEntity,
+      | 'id'
+      | 'about'
+      | 'establishmentYear'
+      | 'industry'
+      | 'location'
+      | 'logo'
+      | 'name'
+      | 'ownershipType'
+      | 'size'
+      | 'webSite'
+    > = await this.companyRepository.findOne({
+      where: { id: param.companyId },
+      select: {
+        id: true,
+        about: true,
+        establishmentYear: true,
+        industry: true,
+        location: { address: true, latitude: true, longitude: true },
+        logo: true,
+        name: true,
+        ownershipType: true,
+        size: { max: true, min: true },
+        webSite: true,
+      },
+    });
+
+    if (!company) throw new NotFoundException('company.not_found');
+
+    return company;
+  }
 }

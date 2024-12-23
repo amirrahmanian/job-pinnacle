@@ -19,6 +19,7 @@ import { JobSavedRepository } from 'src/db/repository/job-saved.repository';
 import { JobSeekerRepository } from 'src/db/repository/job-seeker.repository';
 import { JobSeekerEntity } from 'src/db/entity/job-seeker.entity';
 import { JobAppliedRepository } from 'src/db/repository/job-applied.repository';
+import { JobAppliedStatusEnum } from 'src/common/enum/job-applied-status.enum';
 
 @Injectable()
 export class JobService {
@@ -222,9 +223,42 @@ export class JobService {
      * TODO: implement with kafka
      */
 
-    // await this.jobAppliedRepository.insertOrIgnore({
-    //   jobId: param.jobId,
-    //   jobSeekerId: jobSeeker.id,
-    // });
+    await this.jobAppliedRepository.insertOrIgnore({
+      jobId: param.jobId,
+      jobSeekerId: jobSeeker.id,
+      status: JobAppliedStatusEnum.PENDING,
+    });
+  }
+
+  async getJobInfo(param: JobIdParamDto) {
+    const job: Pick<
+      JobEntity,
+      | 'id'
+      | 'collaborationTime'
+      | 'collaborationType'
+      | 'description'
+      | 'dutySystem'
+      | 'education'
+      | 'experience'
+      | 'gender'
+      | 'title'
+    > = await this.jobRepository.findOne({
+      where: { id: param.jobId },
+      select: {
+        id: true,
+        collaborationTime: { from: true, to: true },
+        collaborationType: true,
+        description: true,
+        dutySystem: true,
+        experience: { max: true, min: true },
+        gender: true,
+        title: true,
+        education: true,
+      },
+    });
+
+    if (!job) throw new NotFoundException('job.not_found');
+
+    return job;
   }
 }
