@@ -9,6 +9,7 @@ async function bootstrap() {
   // set validation pipe globally
   app.useGlobalPipes(
     new ValidationPipe({
+      whitelist: true,
       transform: true,
       stopAtFirstError: true,
       exceptionFactory: validationExceptionFactory,
