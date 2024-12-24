@@ -16,6 +16,8 @@ import { IJobColaborationTime } from 'src/common/interface/job-colaboration-time
 import { CompanyEntity } from './company.entity';
 import { JobAppliedEntity } from './job-applied.entity';
 import { JobsavedEntity } from './job-saved.entity';
+import { JobCityEnum } from 'src/common/enum/job-city.enum';
+import { IJobSalery } from 'src/common/interface/job-salary.interface';
 
 @Entity('job')
 export class JobEntity extends BaseEntity {
@@ -25,8 +27,14 @@ export class JobEntity extends BaseEntity {
   @Column()
   companyId: number;
 
+  @Column({ type: 'boolean' })
+  immediate: boolean;
+
   @Column()
   title: string;
+
+  @Column({ type: 'enum', enum: JobCityEnum })
+  city: JobCityEnum;
 
   @Column({ enum: JobColaborationTypeEnum, type: 'enum', array: true })
   collaborationType: JobColaborationTypeEnum[];
@@ -53,6 +61,9 @@ export class JobEntity extends BaseEntity {
 
   @Column({ type: 'enum', enum: JobEducationEnum, array: true, nullable: true })
   education?: JobEducationEnum[];
+
+  @Column({ nullable: true, type: 'jsonb' })
+  salery?: IJobSalery;
 
   @ManyToOne(() => CompanyEntity, (company) => company.job)
   @JoinColumn({ name: 'companyId' })

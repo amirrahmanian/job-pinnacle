@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
 } from '@nestjs/common';
 import { JobService } from './job.service';
 import { UserRoleEnum } from 'src/common/enum/user-role.enum';
@@ -17,6 +18,7 @@ import { UserPayload } from 'src/auth/type/user-payload.type';
 import { JobIdParamDto } from './dto/job-id-param.dto';
 import { UpdateJobBodyDto } from './dto/update-job-body.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
+import { GetFilterJobQueryDto } from './dto/get-filter-job-query.dto';
 
 @Controller('job')
 export class JobController {
@@ -81,5 +83,11 @@ export class JobController {
   @Public()
   async getJobInfo(@Param() jobIdParamDto: JobIdParamDto) {
     return this.jobService.getJobInfo(jobIdParamDto);
+  }
+
+  @Get()
+  @Public()
+  async getFilteredJob(@Query() getFilterJobQueryDto: GetFilterJobQueryDto) {
+    return this.jobService.getFilteredJob(getFilterJobQueryDto);
   }
 }

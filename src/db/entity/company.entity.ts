@@ -25,20 +25,20 @@ export class CompanyEntity extends BaseEntity {
   @Column()
   name: string;
 
-  @Column({ type: 'jsonb' })
-  location: ICompanyLocation;
+  @Column({ type: 'jsonb', nullable: true })
+  location?: ICompanyLocation;
 
   @Column({ nullable: true })
   logo?: string;
 
   @Column({ nullable: true })
-  webSite?: string;
+  website?: string;
 
   @Column({ type: 'jsonb' })
   size: ICompanySize;
 
-  @Column({ array: true, type: 'enum', enum: CompanyIndustryEnum })
-  industry: CompanyIndustryEnum[];
+  @Column({ type: 'enum', enum: CompanyIndustryEnum })
+  industry: CompanyIndustryEnum;
 
   @Column({ type: 'timestamptz' })
   establishmentYear: Date;

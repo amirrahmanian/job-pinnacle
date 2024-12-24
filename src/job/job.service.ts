@@ -20,6 +20,7 @@ import { JobSeekerRepository } from 'src/db/repository/job-seeker.repository';
 import { JobSeekerEntity } from 'src/db/entity/job-seeker.entity';
 import { JobAppliedRepository } from 'src/db/repository/job-applied.repository';
 import { JobAppliedStatusEnum } from 'src/common/enum/job-applied-status.enum';
+import { GetFilterJobQueryDto } from './dto/get-filter-job-query.dto';
 
 @Injectable()
 export class JobService {
@@ -72,7 +73,9 @@ export class JobService {
 
     const insertResult = await this.jobRepository.insert({
       companyId: company.id,
+      immediate: body.immediate,
       title: body.title,
+      city: body.city,
       collaborationTime: insertObj.collaborationTime,
       collaborationType: body.collaborationType,
       description: body.description,
@@ -80,6 +83,7 @@ export class JobService {
       education: body.education,
       experience: body.experience,
       gender: body.gender,
+      salery: body.salery,
       company: { id: company.id },
     });
 
@@ -135,7 +139,9 @@ export class JobService {
     await this.jobRepository.update(
       { id: job.id },
       {
+        immediate: body.immediate,
         title: body.title,
+        city: body.city,
         collaborationTime: updateObj.collaborationTime,
         collaborationType: body.collaborationType,
         description: body.description,
@@ -143,6 +149,7 @@ export class JobService {
         education: body.education,
         experience: body.experience,
         gender: body.gender,
+        salery: body.salery,
       },
     );
   }
@@ -220,7 +227,7 @@ export class JobService {
      */
 
     /**
-     * TODO: implement with kafka
+     * TODO: send notification with kafka
      */
 
     await this.jobAppliedRepository.insertOrIgnore({
@@ -242,6 +249,10 @@ export class JobService {
       | 'experience'
       | 'gender'
       | 'title'
+      | 'city'
+      | 'immediate'
+      | 'salery'
+      | 'createdAt'
     > = await this.jobRepository.findOne({
       where: { id: param.jobId },
       select: {
@@ -260,5 +271,11 @@ export class JobService {
     if (!job) throw new NotFoundException('job.not_found');
 
     return job;
+  }
+
+  async getFilteredJob(query: GetFilterJobQueryDto) {
+    const [data, total] = await this.jobRepository.getFilteredJob(query);
+
+    return { data, total };
   }
 }

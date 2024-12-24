@@ -1,12 +1,10 @@
 import { Type } from 'class-transformer';
 import {
-  IsArray,
   IsDateString,
   IsDefined,
   IsEnum,
   IsInt,
   IsNotEmpty,
-  IsNumber,
   IsObject,
   IsOptional,
   IsString,
@@ -19,22 +17,21 @@ import { CompanyIndustryEnum } from 'src/common/enum/company-industry.enum';
 import { CompanyOwnershipTypeEnum } from 'src/common/enum/company-ownership-type.enum';
 
 export class CreateCompanyBodyLocationDto {
-  @IsDefined()
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  address: string;
+  address?: string;
 
-  @IsDefined()
-  @IsNumber()
+  @IsOptional()
+  @IsInt()
   @Min(-90)
   @Max(90)
-  latitude: number;
+  latitude?: number;
 
-  @IsDefined()
-  @IsNumber()
+  @IsOptional()
+  @IsInt()
   @Min(-180)
   @Max(180)
-  longitude: number;
+  longitude?: number;
 }
 
 export class CreateCompanyBodySizeDto {
@@ -52,15 +49,15 @@ export class CreateCompanyBodyDto {
   @IsString()
   name: string;
 
-  @IsDefined()
+  @IsOptional()
   @IsObject()
   @ValidateNested()
   @Type(() => CreateCompanyBodyLocationDto)
-  location: CreateCompanyBodyLocationDto;
+  location?: CreateCompanyBodyLocationDto;
 
   @IsOptional()
   @IsUrl()
-  webSite?: string;
+  website?: string;
 
   @IsDefined()
   @ValidateNested()
@@ -69,9 +66,8 @@ export class CreateCompanyBodyDto {
   size: CreateCompanyBodySizeDto;
 
   @IsDefined()
-  @IsArray()
-  @IsEnum(CompanyIndustryEnum, { each: true })
-  industry: CompanyIndustryEnum[];
+  @IsEnum(CompanyIndustryEnum)
+  industry: CompanyIndustryEnum;
 
   /**
    * EstablishmentYear Date

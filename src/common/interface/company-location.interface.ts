@@ -1,5 +1,5 @@
 export interface ICompanyLocation {
-  address: string;
-  latitude: number;
-  longitude: number;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
 }

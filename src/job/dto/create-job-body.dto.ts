@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsDateString,
   IsDefined,
   IsEnum,
@@ -8,7 +9,10 @@ import {
   IsObject,
   IsOptional,
   IsString,
+  Max,
+  Min,
 } from 'class-validator';
+import { JobCityEnum } from 'src/common/enum/job-city.enum';
 import { JobColaborationTypeEnum } from 'src/common/enum/job-colaboration-type.enum';
 import { JobDutySystemEnum } from 'src/common/enum/job-duty-system.enum';
 import { JobEducationEnum } from 'src/common/enum/job-education.enum';
@@ -35,17 +39,39 @@ export class CreateJobBodyCollaborationTimeDto {
 export class CreateJobBodyJobExprienceDto {
   @IsOptional()
   @IsInt()
-  min: number;
+  @Min(1)
+  @Max(40)
+  min?: number;
 
   @IsOptional()
   @IsInt()
-  max: number;
+  @Min(1)
+  @Max(40)
+  max?: number;
+}
+
+export class CreateJobBodyJobSaleryDto {
+  @IsOptional()
+  @IsInt()
+  min?: number;
+
+  @IsOptional()
+  @IsInt()
+  max?: number;
 }
 
 export class CreateJobBodyDto {
   @IsDefined()
+  @IsBoolean()
+  immediate: boolean;
+
+  @IsDefined()
   @IsString()
   title: string;
+
+  @IsDefined()
+  @IsEnum(JobCityEnum)
+  city: JobCityEnum;
 
   @IsDefined()
   @IsArray()
@@ -79,4 +105,9 @@ export class CreateJobBodyDto {
   @IsArray()
   @IsEnum(JobEducationEnum, { each: true })
   education?: JobEducationEnum[];
+
+  @IsOptional()
+  @IsObject()
+  @Type(() => CreateJobBodyJobSaleryDto)
+  salery?: CreateJobBodyJobSaleryDto;
 }

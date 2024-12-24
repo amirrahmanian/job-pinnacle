@@ -38,7 +38,7 @@ export class CompanyService {
     const insertCompanyResult = await this.companyRepository.insert({
       name: body.name,
       location: body.location,
-      webSite: body.webSite,
+      website: body.website,
       size: body.size,
       industry: body.industry,
       establishmentYear: new Date(body.establishmentYear),
@@ -92,7 +92,7 @@ export class CompanyService {
       {
         name: body.name,
         location: body.location,
-        webSite: body.webSite,
+        website: body.website,
         size: body.size,
         industry: body.industry,
         establishmentYear: updateObj.establishmentYear,
@@ -139,7 +139,7 @@ export class CompanyService {
       | 'name'
       | 'ownershipType'
       | 'size'
-      | 'webSite'
+      | 'website'
     > = await this.companyRepository.findOne({
       where: { id: param.companyId },
       select: {
@@ -152,7 +152,7 @@ export class CompanyService {
         name: true,
         ownershipType: true,
         size: { max: true, min: true },
-        webSite: true,
+        website: true,
       },
     });
 
