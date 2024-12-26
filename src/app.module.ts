@@ -10,6 +10,7 @@ import { OtpModule } from './otp/otp.module';
 import { RedisModule } from './redis/redis.module';
 import { JobModule } from './job/job.module';
 import { CompanyModule } from './company/company.module';
+import { ChatModule } from './chat/chat.module';
 import validationConfig from './config/validation.config';
 
 @Module({
@@ -51,6 +52,7 @@ import validationConfig from './config/validation.config';
     RedisModule,
     JobModule,
     CompanyModule,
+    ChatModule,
   ],
 })
 export class AppModule {}
