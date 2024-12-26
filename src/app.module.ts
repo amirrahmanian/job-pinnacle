@@ -10,8 +10,9 @@ import { OtpModule } from './otp/otp.module';
 import { RedisModule } from './redis/redis.module';
 import { JobModule } from './job/job.module';
 import { CompanyModule } from './company/company.module';
-import { ChatModule } from './chat/chat.module';
+import { EventModule } from './event/event.module';
 import validationConfig from './config/validation.config';
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
@@ -52,7 +53,8 @@ import validationConfig from './config/validation.config';
     RedisModule,
     JobModule,
     CompanyModule,
-    ChatModule,
+    MessageModule,
+    EventModule,
   ],
 })
 export class AppModule {}

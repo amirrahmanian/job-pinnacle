@@ -7,13 +7,16 @@ export type MessageDocument = HydratedDocument<Message>;
 @Schema()
 export class Message extends Base {
   @Prop()
-  sender: string;
+  senderId: string;
 
   @Prop()
-  receiver: string;
+  receiverId: string;
 
   @Prop()
-  message: string;
+  text: string;
+
+  @Prop()
+  readAt?: Date;
 }
 
 export const MessageSchema = SchemaFactory.createForClass(Message);
