@@ -7,7 +7,7 @@ import { IReadMessageEvent } from './interface/reade-message-event.interface';
 export class EventService {
   constructor(private eventGetway: EventGateway) {}
 
-  async emitNewMessage(event: INewMessageEvent) {
+  emitNewMessage(event: INewMessageEvent) {
     try {
       this.eventGetway.server
         .to(event.senderId.toString())
@@ -18,7 +18,7 @@ export class EventService {
     }
   }
 
-  async emitReadMessage(event: IReadMessageEvent) {
+  emitReadMessage(event: IReadMessageEvent) {
     try {
       this.eventGetway.server
         .to(event.senderId.toString())

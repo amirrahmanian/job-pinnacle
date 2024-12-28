@@ -6,4 +6,5 @@ export interface INewMessageEvent {
   receiverId: Message['receiverId'];
   text: Message['text'];
   createdAt: Message['createdAt'];
+  parent?: Pick<Message, '_id' | 'text'>;
 }

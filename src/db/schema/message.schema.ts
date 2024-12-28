@@ -10,10 +10,10 @@ export class Message extends Base {
   parent?: PopulatedDoc<Types.ObjectId & Message>;
 
   @Prop()
-  senderId: string;
+  senderId: number;
 
   @Prop()
-  receiverId: string;
+  receiverId: number;
 
   @Prop()
   partitionKey: string;
