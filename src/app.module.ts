@@ -13,6 +13,7 @@ import { CompanyModule } from './company/company.module';
 import { EventModule } from './event/event.module';
 import validationConfig from './config/validation.config';
 import { MessageModule } from './message/message.module';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
@@ -43,6 +44,16 @@ import { MessageModule } from './message/message.module';
            */
           synchronize: true,
           logging: true,
+        };
+      },
+    }),
+    MongooseModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<AppEnvConfigType>) => {
+        const mongoEnvConfig = configService.get('mongo', { infer: true });
+
+        return {
+          uri: mongoEnvConfig.uri,
         };
       },
     }),

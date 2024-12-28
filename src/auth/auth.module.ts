@@ -56,5 +56,6 @@ import { MailerModule } from '@nestjs-modules/mailer';
     { provide: APP_GUARD, useClass: JwtAccessTokenGuard },
   ],
   controllers: [AuthController],
+  exports: [JwtModule],
 })
 export class AuthModule {}

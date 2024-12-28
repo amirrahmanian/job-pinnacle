@@ -10,6 +10,11 @@ export default () => ({
     password: process.env.POSTGRES_PASSWORD,
   },
 
+  // mongo
+  mongo: {
+    uri: process.env.MONGO_URI,
+  },
+
   // jwt
   jwt: {
     secret: process.env.JWT_SECRET,
