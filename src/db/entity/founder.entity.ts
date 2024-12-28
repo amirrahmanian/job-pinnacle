@@ -2,11 +2,13 @@ import {
   Column,
   Entity,
   JoinColumn,
+  OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { UserEntity } from './user.entity';
+import { JobEntity } from './job.entity';
 
 @Entity('founder')
 export class FounderEntity extends BaseEntity {
@@ -22,4 +24,7 @@ export class FounderEntity extends BaseEntity {
   @OneToOne(() => UserEntity, (user) => user.founder)
   @JoinColumn({ name: 'userId' })
   user: UserEntity;
+
+  @OneToMany(() => JobEntity, (job) => job.founder)
+  job: JobEntity[];
 }

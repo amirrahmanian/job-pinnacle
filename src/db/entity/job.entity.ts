@@ -18,6 +18,7 @@ import { JobAppliedEntity } from './job-applied.entity';
 import { JobsavedEntity } from './job-saved.entity';
 import { JobCityEnum } from 'src/common/enum/job-city.enum';
 import { IJobSalery } from 'src/common/interface/job-salary.interface';
+import { FounderEntity } from './founder.entity';
 
 @Entity('job')
 export class JobEntity extends BaseEntity {
@@ -26,6 +27,9 @@ export class JobEntity extends BaseEntity {
 
   @Column()
   companyId: number;
+
+  @Column()
+  founderId: number;
 
   @Column({ type: 'boolean' })
   immediate: boolean;
@@ -74,4 +78,7 @@ export class JobEntity extends BaseEntity {
 
   @OneToMany(() => JobsavedEntity, (jobSaved) => jobSaved.job)
   jobSaved: JobsavedEntity[];
+
+  @ManyToOne(() => FounderEntity, (founder) => founder.job)
+  founder: FounderEntity;
 }

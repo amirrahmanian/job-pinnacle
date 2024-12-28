@@ -73,6 +73,7 @@ export class JobService {
 
     const insertResult = await this.jobRepository.insert({
       companyId: company.id,
+      founderId: founder.id,
       immediate: body.immediate,
       title: body.title,
       city: body.city,
@@ -97,21 +98,13 @@ export class JobService {
     body: UpdateJobBodyDto,
     userPayload: UserPayload,
   ) {
-    const job: Pick<JobEntity, 'id' | 'companyId'> =
+    const job: Pick<JobEntity, 'id' | 'founderId'> =
       await this.jobRepository.findOne({
         where: { id: param.jobId },
-        select: { id: true, companyId: true },
-      });
-
-    if (!job) throw new NotFoundException('job.not_found');
-
-    const company: Pick<CompanyEntity, 'id' | 'founderId'> =
-      await this.companyRepository.findOne({
-        where: { id: job.companyId },
         select: { id: true, founderId: true },
       });
 
-    if (!company) throw new NotFoundException('company.not_found');
+    if (!job) throw new NotFoundException('job.not_found');
 
     const founder: Pick<FounderEntity, 'id'> =
       await this.founderRepository.findOne({
@@ -121,7 +114,7 @@ export class JobService {
 
     if (!founder) throw new NotFoundException('founder.not_found');
 
-    if (founder.id !== company.founderId) {
+    if (founder.id !== job.founderId) {
       throw new ForbiddenException();
     }
 
@@ -155,21 +148,13 @@ export class JobService {
   }
 
   async deleteJob(param: JobIdParamDto, userPayload: UserPayload) {
-    const job: Pick<JobEntity, 'id' | 'companyId'> =
+    const job: Pick<JobEntity, 'id' | 'founderId'> =
       await this.jobRepository.findOne({
         where: { id: param.jobId },
-        select: { id: true, companyId: true },
-      });
-
-    if (!job) throw new NotFoundException('job.not_found');
-
-    const company: Pick<CompanyEntity, 'id' | 'founderId'> =
-      await this.companyRepository.findOne({
-        where: { id: job.companyId },
         select: { id: true, founderId: true },
       });
 
-    if (!company) throw new NotFoundException('company.not_found');
+    if (!job) throw new NotFoundException('job.not_found');
 
     const founder: Pick<FounderEntity, 'id'> =
       await this.founderRepository.findOne({
@@ -179,12 +164,12 @@ export class JobService {
 
     if (!founder) throw new NotFoundException('founder.not_found');
 
-    if (founder.id !== company.founderId) {
+    if (founder.id !== job.founderId) {
       throw new ForbiddenException();
     }
 
     await this.jobRepository.softDelete({
-      id: param.jobId,
+      id: job.id,
     });
   }
 
@@ -223,11 +208,7 @@ export class JobService {
     if (!job) throw new NotFoundException('job.not_found');
 
     /**
-     * TODO: check jobSeeker did not apply recently
-     */
-
-    /**
-     * TODO: send notification with kafka
+     * TODO: send notification to job seeker and founder
      */
 
     await this.jobAppliedRepository.insertOrIgnore({
