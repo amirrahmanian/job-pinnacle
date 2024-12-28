@@ -6,6 +6,9 @@ import { UserPayload } from 'src/auth/type/user-payload.type';
 import { UserRepository } from 'src/db/repository/user.repository';
 import { Message } from 'src/db/schema/message.schema';
 import { UserEntity } from 'src/db/entity/user.entity';
+import { GetMessagesDto } from './dto/get-messages.dto';
+import { FilterQuery } from 'mongoose';
+import { ReadMessageDto } from './dto/read-message.dto';
 
 @Injectable()
 export class MessageService {
@@ -14,6 +17,52 @@ export class MessageService {
     private eventService: EventService,
     private userRepository: UserRepository,
   ) {}
+
+  async getMessages(body: GetMessagesDto, userPayload: UserPayload) {
+    const partitionKey = this.generatePartitionKey(
+      body.userId,
+      userPayload.userId,
+    );
+
+    const filter: FilterQuery<Message> = {
+      partitionKey,
+      deletedAt: null,
+    };
+
+    const messagesPromise: Promise<
+      (Pick<
+        Message,
+        '_id' | 'senderId' | 'receiverId' | 'text' | 'readAt' | 'createdAt'
+      > & {
+        parent?: Pick<Message, '_id' | 'text'>;
+      })[]
+    > = this.messageRepository.model
+      .find(filter, {
+        senderId: 1,
+        receiverId: 1,
+        text: 1,
+        readAt: 1,
+        createdAt: 1,
+      })
+      .populate({ path: 'parent', select: { text: 1 } })
+      .sort({ _id: -1 })
+      .skip(body.skip)
+      .limit(body.limit)
+      .lean()
+      .exec();
+
+    const totalPromise = this.messageRepository.model
+      .countDocuments(filter)
+      .lean()
+      .exec();
+
+    const [messages, total] = await Promise.all([
+      messagesPromise,
+      totalPromise,
+    ]);
+
+    return { total, data: messages };
+  }
 
   async sendMessage(body: SendMessageDto, userPayload: UserPayload) {
     const receiverUser: Pick<UserEntity, 'id'> =
@@ -68,7 +117,55 @@ export class MessageService {
     return { _id: insertMessageResult._id.toHexString() };
   }
 
-  private async generatePartitionKey(senderId: number, receiverId: number) {
+  async readMessage(body: ReadMessageDto, userPayload: UserPayload) {
+    const message = await this.messageRepository.model
+      .findOne({
+        _id: body._id,
+        receiverId: userPayload.userId,
+        deletedAt: null,
+      })
+      .select<Pick<Message, '_id' | 'partitionKey' | 'senderId' | 'readAt'>>({
+        _id: 1,
+        partitionKey: 1,
+        senderId: 1,
+        readAt: 1,
+      })
+      .lean()
+      .exec();
+
+    if (!message) {
+      throw new NotFoundException('not_found.message');
+    }
+
+    if (message.readAt) {
+      return { _id: message._id.toHexString() };
+    }
+
+    const readAt = new Date();
+
+    const updateMessageResult = await this.messageRepository.model.updateMany(
+      {
+        _id: { $lte: message._id },
+        partitionKey: message.partitionKey,
+        receiverId: userPayload.userId,
+        readAt: null,
+      },
+      { $set: { readAt } },
+    );
+
+    if (updateMessageResult.matchedCount) {
+      this.eventService.emitReadMessage({
+        _id: message._id,
+        senderId: message.senderId,
+        receiverId: userPayload.userId,
+        readAt,
+      });
+    }
+
+    return { _id: message._id.toHexString() };
+  }
+
+  private generatePartitionKey(senderId: number, receiverId: number) {
     const partitionKey = [senderId, receiverId].sort((a, b) => a - b).join('');
 
     return partitionKey;
