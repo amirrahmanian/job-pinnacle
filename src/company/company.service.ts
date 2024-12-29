@@ -36,6 +36,7 @@ export class CompanyService {
     }
 
     const insertCompanyResult = await this.companyRepository.insert({
+      founderId: founder.id,
       name: body.name,
       location: body.location,
       website: body.website,
@@ -45,8 +46,6 @@ export class CompanyService {
       ownershipType: body.ownershipType,
       about: body.about,
       logo: logo?.path,
-      founderId: founder.id,
-      founder: { id: founder.id },
     });
 
     const companyId: CompanyEntity['id'] =

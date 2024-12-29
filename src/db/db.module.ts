@@ -10,10 +10,15 @@ import { JobSavedRepository } from './repository/job-saved.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Message, MessageSchema } from './schema/message.schema';
 import { MessageRepository } from './repository/message.repository';
+import { Notification, notificationSchema } from './schema/notification.schema';
+import { NotificationRepository } from './repository/notification.repository';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Message.name, schema: MessageSchema }]),
+    MongooseModule.forFeature([
+      { name: Message.name, schema: MessageSchema },
+      { name: Notification.name, schema: notificationSchema },
+    ]),
   ],
   providers: [
     CompanyRepository,
@@ -25,6 +30,7 @@ import { MessageRepository } from './repository/message.repository';
     JobAppliedRepository,
     JobSavedRepository,
     MessageRepository,
+    NotificationRepository,
   ],
   exports: [
     CompanyRepository,
@@ -36,6 +42,7 @@ import { MessageRepository } from './repository/message.repository';
     JobAppliedRepository,
     JobSavedRepository,
     MessageRepository,
+    NotificationRepository,
   ],
 })
 export class DbModule {}

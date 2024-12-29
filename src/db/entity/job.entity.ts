@@ -80,5 +80,6 @@ export class JobEntity extends BaseEntity {
   jobSaved: JobsavedEntity[];
 
   @ManyToOne(() => FounderEntity, (founder) => founder.job)
+  @JoinColumn({ name: 'founderId' })
   founder: FounderEntity;
 }

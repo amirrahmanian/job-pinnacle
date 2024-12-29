@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Put,
   Query,
@@ -19,6 +20,8 @@ import { JobIdParamDto } from './dto/job-id-param.dto';
 import { UpdateJobBodyDto } from './dto/update-job-body.dto';
 import { Public } from 'src/auth/decorator/public.decorator';
 import { GetFilterJobQueryDto } from './dto/get-filter-job-query.dto';
+import { UpdateJobAppliedBodyDto } from './dto/update-job-applied-status-body.dto';
+import { JobAppliedIdParamDto } from './dto/job-applied-id-param.dto';
 
 @Controller('job')
 export class JobController {
@@ -89,5 +92,28 @@ export class JobController {
   @Public()
   async getFilteredJob(@Query() getFilterJobQueryDto: GetFilterJobQueryDto) {
     return this.jobService.getFilteredJob(getFilterJobQueryDto);
+  }
+
+  @Patch(':jobAppliedId')
+  @Private(UserRoleEnum.FOUNDER)
+  async updateJobApplied(
+    @Body() updateJobAppliedBodyDto: UpdateJobAppliedBodyDto,
+    @Param() jobAppliedIdParamDto: JobAppliedIdParamDto,
+    @User() userPayload: UserPayload,
+  ) {
+    return this.jobService.updateJobApplied(
+      updateJobAppliedBodyDto,
+      jobAppliedIdParamDto,
+      userPayload,
+    );
+  }
+
+  @Patch(':jobAppliedId/cancel')
+  @Private(UserRoleEnum.JOB_SEEKER)
+  async cancelJobApplied(
+    @Param() jobAppliedIdParamDto: JobAppliedIdParamDto,
+    @User() userPayload: UserPayload,
+  ) {
+    return this.jobService.cancelJobApplied(jobAppliedIdParamDto, userPayload);
   }
 }

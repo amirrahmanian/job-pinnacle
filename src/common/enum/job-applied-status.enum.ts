@@ -4,7 +4,5 @@ export enum JobAppliedStatusEnum {
   INTERVIEW = 'interview',
   HIRED = 'hired',
   REJECTED = 'rejected',
-  EXPIRED = 'expired',
   RESIGNATED = 'resignated',
-  REMOVED = 'removed',
 }

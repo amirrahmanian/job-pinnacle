@@ -9,6 +9,7 @@ import {
 import { BaseEntity } from './base.entity';
 import { UserEntity } from './user.entity';
 import { JobEntity } from './job.entity';
+import { JobAppliedEntity } from './job-applied.entity';
 
 @Entity('founder')
 export class FounderEntity extends BaseEntity {
@@ -27,4 +28,7 @@ export class FounderEntity extends BaseEntity {
 
   @OneToMany(() => JobEntity, (job) => job.founder)
   job: JobEntity[];
+
+  @OneToMany(() => JobAppliedEntity, (jobApplied) => jobApplied.founder)
+  jobApplied: JobAppliedEntity[];
 }

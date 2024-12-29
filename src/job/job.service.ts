@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -21,6 +22,10 @@ import { JobSeekerEntity } from 'src/db/entity/job-seeker.entity';
 import { JobAppliedRepository } from 'src/db/repository/job-applied.repository';
 import { JobAppliedStatusEnum } from 'src/common/enum/job-applied-status.enum';
 import { GetFilterJobQueryDto } from './dto/get-filter-job-query.dto';
+import { JobAppliedEntity } from 'src/db/entity/job-applied.entity';
+import { JobAppliedIdParamDto } from './dto/job-applied-id-param.dto';
+import { UpdateJobAppliedBodyDto } from './dto/update-job-applied-status-body.dto';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class JobService {
@@ -31,6 +36,7 @@ export class JobService {
     private jobSeekerRepository: JobSeekerRepository,
     private jobSavedRepository: JobSavedRepository,
     private jobAppliedRepository: JobAppliedRepository,
+    private notificationService: NotificationService,
   ) {}
 
   async createJob(
@@ -85,7 +91,6 @@ export class JobService {
       experience: body.experience,
       gender: body.gender,
       salery: body.salery,
-      company: { id: company.id },
     });
 
     const jobId: JobEntity['id'] = insertResult.generatedMaps[0].id;
@@ -197,23 +202,31 @@ export class JobService {
     const jobSeeker: Pick<JobSeekerEntity, 'id'> =
       await this.jobSeekerRepository.findOne({
         where: { userId: userPayload.userId },
+        select: { id: true },
       });
 
     if (!jobSeeker) throw new NotFoundException('jobSeeker.not_found');
 
-    const job: Pick<JobEntity, 'id'> = await this.jobRepository.findOne({
-      where: { id: param.jobId },
-    });
+    const job: Pick<JobEntity, 'id' | 'founderId'> =
+      await this.jobRepository.findOne({
+        where: { id: param.jobId },
+        select: { id: true, founderId: true },
+      });
 
     if (!job) throw new NotFoundException('job.not_found');
 
-    /**
-     * TODO: send notification to job seeker and founder
-     */
+    const jobApplied: Pick<JobAppliedEntity, 'id'> =
+      await this.jobAppliedRepository.findOne({
+        where: { jobSeekerId: jobSeeker.id, jobId: job.id },
+        select: { id: true },
+      });
 
-    await this.jobAppliedRepository.insertOrIgnore({
+    if (jobApplied) throw new BadRequestException('duplicate.user');
+
+    await this.jobAppliedRepository.insert({
       jobId: param.jobId,
       jobSeekerId: jobSeeker.id,
+      founderId: job.founderId,
       status: JobAppliedStatusEnum.PENDING,
     });
   }
@@ -258,5 +271,88 @@ export class JobService {
     const [data, total] = await this.jobRepository.getFilteredJob(query);
 
     return { data, total };
+  }
+
+  async updateJobApplied(
+    body: UpdateJobAppliedBodyDto,
+    param: JobAppliedIdParamDto,
+    userPayload: UserPayload,
+  ) {
+    const founder: Pick<FounderEntity, 'id'> =
+      await this.founderRepository.findOne({
+        where: { userId: userPayload.userId },
+        select: { id: true },
+      });
+
+    if (!founder) throw new NotFoundException('founder.not_found');
+
+    const jobApplied: Pick<JobAppliedEntity, 'id' | 'founderId' | 'status'> =
+      await this.jobAppliedRepository.findOne({
+        where: { id: param.jobAppliedId },
+        select: { id: true, founderId: true, status: true },
+      });
+
+    if (!jobApplied) throw new NotFoundException('not_found.jobApplied');
+
+    if (jobApplied.founderId !== founder.id) {
+      throw new ForbiddenException();
+    }
+
+    if (jobApplied.status === JobAppliedStatusEnum.RESIGNATED)
+      throw new BadRequestException('burned.jobApplied');
+
+    await this.jobAppliedRepository.update(
+      { id: jobApplied.id },
+      { status: body.status },
+    );
+  }
+
+  async cancelJobApplied(
+    param: JobAppliedIdParamDto,
+    userPayload: UserPayload,
+  ) {
+    const jobSeeker: Pick<JobSeekerEntity, 'id' | 'firstName' | 'lastName'> =
+      await this.jobSeekerRepository.findOne({
+        where: { userId: userPayload.userId },
+        select: { id: true, firstName: true, lastName: true },
+      });
+
+    if (!jobSeeker) throw new NotFoundException('jobSeeker.not_found');
+
+    const jobApplied: Pick<
+      JobAppliedEntity,
+      'id' | 'jobSeekerId' | 'founderId' | 'status'
+    > = await this.jobAppliedRepository.findOne({
+      where: { id: param.jobAppliedId },
+      select: { id: true, jobSeekerId: true, founderId: true, status: true },
+    });
+
+    if (!jobApplied) throw new NotFoundException('not_found.jobApplied');
+
+    if (jobApplied.jobSeekerId !== jobSeeker.id) {
+      throw new ForbiddenException();
+    }
+
+    if (jobApplied.status === JobAppliedStatusEnum.RESIGNATED) {
+      throw new BadRequestException('allready_resignated.jobSeeker');
+    }
+
+    await this.jobAppliedRepository.update(
+      { id: jobApplied.id },
+      { status: JobAppliedStatusEnum.RESIGNATED },
+    );
+
+    const founder: Pick<FounderEntity, 'id' | 'userId'> =
+      await this.founderRepository.findOne({
+        where: { id: jobApplied.founderId },
+        select: { id: true, userId: true },
+      });
+
+    if (founder) {
+      await this.notificationService.sendNotification({
+        receiverId: founder.userId,
+        text: `${jobSeeker.firstName} ${jobSeeker.lastName} is resignated to get the job offer`,
+      });
+    }
   }
 }
