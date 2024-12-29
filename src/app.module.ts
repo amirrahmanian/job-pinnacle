@@ -47,7 +47,7 @@ import { AccountModule } from './account/account.module';
            * TODO: delete below options in future
            */
           synchronize: true,
-          // logging: true,
+          logging: true,
         };
       },
     }),
