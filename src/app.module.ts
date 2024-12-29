@@ -15,6 +15,9 @@ import validationConfig from './config/validation.config';
 import { MessageModule } from './message/message.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { NotificationModule } from './notification/notification.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { AccountModule } from './account/account.module';
 
 @Module({
   imports: [
@@ -68,6 +71,9 @@ import { NotificationModule } from './notification/notification.module';
     MessageModule,
     EventModule,
     NotificationModule,
+    AccountModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
