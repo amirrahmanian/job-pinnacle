@@ -6,7 +6,7 @@ export interface ICreateOtpParams {
   type: OtpTypeEnum;
   operation: OtpOperationTypeEnum;
   options?: {
-    ttl?: number; // seconds
-    timeout?: number; // seconds
+    ttl?: number;
+    timeout?: number;
   };
 }

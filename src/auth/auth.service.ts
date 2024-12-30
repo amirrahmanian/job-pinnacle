@@ -215,14 +215,12 @@ export class AuthService {
 
     if (!user) throw new NotFoundException('not_found.user');
 
-    // create otp
     const otp = await this.otpService.createOtp({
       id: user.email,
       operation: OtpOperationTypeEnum.FORGET_PASSWORD,
       type: OtpTypeEnum.EMAIL,
     });
 
-    // send email
     if (this.nodeEnv === 'development') {
       console.log(`we have sent the code(${otp}) to your email(${user.email})`);
     } else {
@@ -243,7 +241,6 @@ export class AuthService {
 
     if (!user) throw new NotFoundException('not_found.user');
 
-    // verify otp
     await this.otpService.verifyOtp({
       id: user.email,
       code: body.otpCode,
@@ -251,7 +248,6 @@ export class AuthService {
       type: OtpTypeEnum.EMAIL,
     });
 
-    // create otp token
     const token = await this.otpService.createOtp({
       id: body.email,
       operation: OtpOperationTypeEnum.FORGET_PASSWORD,
@@ -270,7 +266,6 @@ export class AuthService {
 
     if (!user) throw new NotFoundException('not_found.user');
 
-    // verify otp
     await this.otpService.verifyOtp({
       id: user.email,
       code: body.otpCode,
@@ -278,14 +273,11 @@ export class AuthService {
       type: OtpTypeEnum.TOKEN,
     });
 
-    // purge all user active refresh tokens
     await this.sessionService.purgeUserActiveTokens(user.id);
 
-    // hash password
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(body.password, salt);
 
-    // set new password
     await this.userRepository.update(user.id, { password: hashedPassword });
   }
 

@@ -31,7 +31,6 @@ export class OtpService {
     return new Promise<string>((resolve, reject) => {
       this.lock
         .acquire(otpKey, async () => {
-          // if timout is passed, search for previous otp in defined timout
           if (options?.timeout != null) {
             const previousOtp = await this.redisClient.get(otpKey);
 
@@ -51,10 +50,8 @@ export class OtpService {
           const code = this.generateCode(type);
           const otp = `${time}:${code}`;
 
-          // create or replace attempts
           await this.redisClient.setex(attemptsKey, attemptsTtl, 0);
 
-          // create or replace otp
           await this.redisClient.setex(otpKey, otpTtl, otp);
 
           return code;

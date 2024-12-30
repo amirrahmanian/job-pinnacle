@@ -80,7 +80,6 @@ export class MessageService {
 
     let parent: Pick<Message, '_id' | 'text'>;
 
-    // validate parent
     if (body.parent) {
       parent = await this.messageRepository.model
         .findOne({
