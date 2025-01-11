@@ -13,4 +13,4 @@ export class Notification extends Base {
   text: string;
 }
 
-export const notificationSchema = SchemaFactory.createForClass(Notification);
+export const NotificationSchema = SchemaFactory.createForClass(Notification);
